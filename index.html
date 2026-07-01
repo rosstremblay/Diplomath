@@ -756,7 +756,14 @@ async function doSearch(slot,q){
     load.style.display="block"; list.style.display="none";
     try{
       const r=await fetch(`/api/search?q=${encodeURIComponent(resolvedQ)}&fields=${encodeURIComponent(FIELDS)}&per_page=20`);
-      const d=await r.json();
+      let d={};
+      try{
+        const text=await r.text();
+        d=JSON.parse(text);
+      }catch(parseErr){
+        throw new Error("Search returned an unexpected response — check your API key or try again");
+      }
+      if(d.error) throw new Error(d.error);
       srchData[slot]=d.results||[];
       load.style.display="none";
       if(!srchData[slot].length){
