@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diplomath — The math behind the diploma</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.cdnfonts.com/css/geist-sans">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#0a0d14;--bg2:#111520;--bg3:#1a1f2e;--bg4:#242938;
+  --amber:#d4a843;--green:#3fb950;--red:#f85149;
+  --brand:#4f5bd5;--brand-d:#3544c4;--brand-l:#e8eaff;
+  --gold:#d4a843;--gold-l:#fdf6e3;
+  --ca:#7B61FF;--cb:#FF7B4A;
+  --text:#f0f6fc;--text2:#c9d1d9;--text3:#8b949e;
+  --border:#242938;--border2:#1a1f2e;
+  --serif:'DM Serif Display',Georgia,serif;
+  --sans:'Geist','Plus Jakarta Sans','Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --r:8px;--rl:12px;
+}
+[data-theme="light"]{
+  --bg:#f9f8f5;--bg2:#ffffff;--bg3:#f2f1ed;--bg4:#e8e5de;
+  --gold:#96700a;--amber:#96700a;--green:#1a7a3a;--red:#c0392b;
+  --brand:#4050c8;--brand-d:#3040b0;
+  --ca:#5045c8;--cb:#d4602a;
+  --text:#1a1a2e;--text2:#3d3c3a;--text3:#80807a;
+  --border:#dddbd5;--border2:#e8e5df;
+}
+.theme-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text3);font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:var(--r);cursor:pointer;transition:all .15s}
+.theme-btn:hover{border-color:var(--brand);color:var(--brand)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;min-height:100vh}
+.hdr{background:var(--bg);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px)}
+.logo{font-family:var(--serif);font-size:1.25rem;color:var(--text);letter-spacing:.03em;line-height:1.1}.logo em{color:var(--gold);font-style:italic}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.api-badge{font-size:10px;padding:3px 10px;border-radius:99px;font-family:var(--mono);background:var(--bg4);color:var(--text3)}
+.beta{font-size:10px;background:var(--brand);color:#fff;padding:2px 7px;border-radius:99px;font-weight:600;font-family:var(--mono)}
+.tab-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 1.5rem;display:flex;position:sticky;top:53px;z-index:90}
+.tab{padding:.7rem 1.25rem;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--sans);transition:all .15s}
+.tab:hover{color:var(--text2)}.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.view{display:none}.view.active{display:block;overflow:visible}
+.field{margin-bottom:.5rem}
+.field label{display:block;font-size:11px;font-weight:500;color:var(--text2);margin-bottom:3px;letter-spacing:.01em}
+.field select,.field input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--sans);font-size:12px;padding:6px 9px;border-radius:var(--r);outline:none;-webkit-appearance:none;transition:border-color .15s}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238b949e'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:26px}
+.field select:focus,.field input:focus{border-color:var(--amber)}
+.field select option{background:var(--bg3);color:var(--text)}
+.field input::placeholder{color:var(--bg4)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pfx{position:relative}.pfx span{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--text3);pointer-events:none}
+.pfx input{padding-left:20px}
+.tip{font-size:10px;color:var(--text3);margin-top:3px;line-height:1.45;font-style:italic;opacity:.8}
+.tip-toggle{font-size:10px;color:var(--text3);background:none;border:none;cursor:pointer;padding:0;font-family:var(--sans);text-decoration:underline;text-underline-offset:2px;margin-top:3px;margin-left:8px;display:block;text-align:left;font-weight:400;letter-spacing:.01em}
+.tip-toggle:hover{color:var(--brand)}
+.tip-expand{display:none;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:.875rem 1rem;margin-top:6px;font-size:12px;color:var(--text2);line-height:1.7}
+.tip-expand.open{display:block}
+.tip-expand h4{font-size:11px;font-weight:600;color:var(--text);margin:0 0 3px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.tip-expand p{margin:0 0 .75rem}
+.tip-expand p:last-child{margin:0}
+.tip-expand .example{background:var(--bg2);border-radius:var(--r);padding:.5rem .75rem;margin:.5rem 0;font-family:var(--mono);font-size:11px;color:var(--text3)}
+.tip-expand .example span{color:var(--text)}
+.srch-wrap{margin-bottom:.5rem}
+.srch-inner{position:relative}
+.srch-inner input{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-size:13px;padding:8px 12px 8px 34px;border-radius:var(--r);outline:none;font-family:var(--sans);transition:border-color .15s}
+.srch-inner input:focus{border-color:var(--amber)}
+.srch-inner input::placeholder{color:var(--bg4)}
+.srch-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:15px;pointer-events:none}
+.srch-list{margin-top:4px;display:none;border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+.srch-item{width:100%;background:var(--bg3);border:none;border-bottom:1px solid var(--border2);color:var(--text);text-align:left;padding:9px 12px;cursor:pointer;font-family:var(--sans);display:block;transition:background .1s}
+.srch-item:last-child{border-bottom:none}
+.srch-item:hover{background:var(--bg4)}
+.srch-loading{font-size:11px;color:var(--text3);padding:3px 0;display:none}
+.school-tag{display:flex;align-items:center;justify-content:space-between;padding:5px 10px;border-radius:var(--r);margin-top:4px;font-size:12px;font-weight:500;border:1px solid}
+.tag-amber{background:rgba(240,165,0,.1);color:var(--amber);border-color:rgba(240,165,0,.3)}
+.tag-a{background:rgba(123,97,255,.1);color:#b8a4ff;border-color:rgba(123,97,255,.3)}
+.tag-b{background:rgba(255,123,74,.1);color:#ffb99a;border-color:rgba(255,123,74,.3)}
+.tag-x{background:none;border:none;color:inherit;cursor:pointer;font-size:15px;padding:0;line-height:1;opacity:.7}.tag-x:hover{opacity:1}
+.pill{font-size:10px;padding:1px 6px;border-radius:99px;background:var(--bg4);color:var(--text3);font-family:var(--mono);display:inline-block;margin-right:3px;margin-top:2px}
+.cta{width:100%;padding:11px;background:var(--brand);color:#fff;font-family:var(--sans);font-size:13px;font-weight:600;border:none;border-radius:var(--r);cursor:pointer;margin-top:.875rem;transition:background .2s,transform .1s}
+.cta:hover{background:var(--brand-d)}.cta:active{transform:scale(.98)}.cta:disabled{opacity:.45;cursor:not-allowed}
+.sec-btn{width:100%;padding:8px;background:transparent;border:1px solid var(--border);color:var(--text3);font-family:var(--sans);font-size:12px;border-radius:var(--r);cursor:pointer;margin-top:.5rem;transition:all .15s}
+.sec-btn:hover{border-color:var(--amber);color:var(--amber)}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:1.25rem}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:.75rem .875rem}
+.metric-label{font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.metric-val{font-size:20px;font-weight:500;font-family:var(--mono)}
+.g{color:var(--green)}.a{color:var(--amber)}.r{color:var(--red)}
+.metric-sub{font-size:10px;color:var(--text3);margin-top:1px}
+.verdict{border-radius:var(--rl);padding:.875rem 1rem;margin-bottom:1.25rem;border:1px solid}
+.verdict h3{font-size:13px;font-weight:500;margin-bottom:4px}
+.verdict p{font-size:12px;line-height:1.6}
+.vgood{background:rgba(63,185,80,.07);border-color:rgba(63,185,80,.3)}.vgood h3{color:var(--green)}.vgood p{color:rgba(63,185,80,.85)}
+.vwarn{background:rgba(240,165,0,.07);border-color:rgba(240,165,0,.3)}.vwarn h3{color:var(--amber)}.vwarn p{color:rgba(240,165,0,.85)}
+.vbad{background:rgba(248,81,73,.07);border-color:rgba(248,81,73,.3)}.vbad h3{color:var(--red)}.vbad p{color:rgba(248,81,73,.85)}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:1rem;margin-bottom:1rem}
+.chart-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.chart-sub{font-size:11px;color:var(--text3);margin-bottom:.875rem}
+.chart-wrap{position:relative;width:100%}
+.charts-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.leg-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:.625rem;font-size:11px;color:var(--text3)}
+.leg{display:flex;align-items:center;gap:5px}
+.leg-sq{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden;margin-bottom:1rem}
+.stat-row{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 13px;border-bottom:1px solid var(--border2);font-size:12px;gap:8px}
+.stat-row:last-child{border-bottom:none}
+.stat-label{color:var(--text3);flex:1}
+.stat-note{font-size:10px;color:var(--text3);display:block;margin-top:1px}
+.stat-val{font-family:var(--mono);color:var(--text);text-align:right;white-space:nowrap}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+.analyze-shell{display:grid;grid-template-columns:340px 1fr;align-items:start}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:1rem 1.125rem;overflow-y:auto;max-height:calc(100vh - 94px);position:sticky;top:94px;align-self:start}
+.sidebar-section{margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border2)}
+.sidebar-section:last-of-type{border-bottom:none;margin-bottom:0}
+.sidebar-section-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-family:var(--mono);margin-bottom:.625rem}
+.content{padding:1.5rem}
+.compare-shell{display:grid;grid-template-columns:1fr 1fr;align-items:start}
+.scenario{border-right:1px solid var(--border)}
+.scenario:last-child{border-right:none}
+.scen-hdr{padding:.875rem 1.25rem;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:space-between;position:sticky;top:94px;z-index:50}
+.scen-label{font-size:11px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--text3);display:flex;align-items:center;gap:6px}
+.sch-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block}
+.scen-inputs{padding:.875rem 1.125rem;background:var(--bg2);border-bottom:1px solid var(--border);overflow:visible}
+.scen-results{padding:1.25rem;background:var(--bg)}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:45vh;text-align:center;color:var(--text3);padding:2rem}
+.empty h2{font-family:var(--serif);font-size:1.5rem;color:var(--text2);margin-bottom:.5rem}
+.empty p{font-size:13px;max-width:340px;line-height:1.7;margin-bottom:1rem}
+.hint-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.hint{background:var(--bg3);border:1px solid var(--border);color:var(--text3);font-size:11px;padding:4px 10px;border-radius:99px;cursor:pointer;transition:all .15s;font-family:var(--sans)}
+.hint:hover{border-color:var(--amber);color:var(--amber)}
+.disclaimer{font-size:11px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:.75rem 1rem;line-height:1.6;margin-bottom:1rem}
+.aff-card{border-radius:var(--rl);border:1px solid var(--border);overflow:hidden;margin-bottom:1rem}
+.aff-card-inner{padding:.875rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.aff-label{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);font-family:var(--mono);margin-bottom:3px}
+.aff-msg{font-size:12px;color:var(--text2);line-height:1.5;flex:1}
+.aff-msg strong{color:var(--text);font-weight:500}
+.aff-btn{display:inline-block;padding:7px 16px;border-radius:var(--r);font-size:12px;font-weight:600;font-family:var(--sans);white-space:nowrap;text-decoration:none;transition:opacity .15s;flex-shrink:0}
+.aff-btn:hover{opacity:.85}
+.aff-disclosure{font-size:10px;color:var(--text3);padding:.375rem 1rem;border-top:1px solid var(--border);background:var(--bg3)}
+@media(max-width:900px){.analyze-shell,.compare-shell{grid-template-columns:1fr}.sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border)}.charts-2{grid-template-columns:1fr}.scenario{border-right:none;border-bottom:1px solid var(--border)}}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div>
+    <div style="display:flex;align-items:center;gap:11px">
+      <svg width="34" height="34" viewBox="0 0 44 44">
+        <polygon points="22,4 38,13 22,22 6,13" fill="#4f5bd5"/>
+        <rect x="32" y="13" width="3" height="10" rx="1.5" fill="#7b8bf0"/>
+        <path d="M32 23 Q32 29 29 29 Q26 29 26 27" stroke="#7b8bf0" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <rect x="12" y="22" width="20" height="8" rx="2.5" fill="#d4a843"/>
+        <text x="22" y="28.5" text-anchor="middle" font-size="8" font-family="Georgia,serif" font-weight="700" fill="#0a0d14">&#8721;</text>
+      </svg>
+      <div>
+        <div style="font-family:var(--serif);font-size:1.25rem;letter-spacing:.03em;line-height:1.1;display:flex;align-items:baseline;gap:0">
+          <span style="color:var(--text)">DIPLOM</span>
+          <svg width="16" height="20" viewBox="0 0 16 20" style="display:inline-block;vertical-align:baseline;margin-bottom:-2px;overflow:visible">
+            <defs>
+              <linearGradient id="ag-light" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#4f5bd5"/>
+                <stop offset="50%" stop-color="#9066c0"/>
+                <stop offset="100%" stop-color="#d4a843"/>
+              </linearGradient>
+            </defs>
+            <text x="0" y="17" font-family="Georgia,serif" font-size="18" font-weight="700" fill="url(#ag-light)">A</text>
+          </svg>
+          <span style="color:var(--gold);font-style:italic">TH</span>
+        </div>
+        <div style="font-size:9px;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-top:2px">The math behind the diploma</div>
+      </div>
+    </div>
+  </div>
+  <div class="hdr-r">
+
+    <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle light/dark mode">&#9788;</button>
+    <span class="api-badge" id="apiBadge">Checking...</span>
+    <span class="beta">BETA</span>
+  </div>
+</header>
+
+<div class="tab-bar">
+  <button class="tab active" id="tab-analyze" onclick="switchTab('analyze')">Analyze a college</button>
+  <button class="tab" id="tab-compare" onclick="switchTab('compare')">Compare two scenarios</button>
+  <button class="tab" id="tab-plan" onclick="switchTab('plan')">Plan &amp; save</button>
+</div>
+
+<!-- TAB 1 -->
+<div class="view active" id="view-analyze">
+  <div class="analyze-shell">
+    <aside class="sidebar">
+      <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);font-family:var(--mono);margin-bottom:.625rem">Search college</div>
+      <div class="srch-wrap">
+        <div class="srch-inner">
+          <span class="srch-icon">&#128269;</span>
+          <input type="text" id="a-q" placeholder="e.g. NYU, MIT, Ohio State, Georgia Tech..." autocomplete="off" oninput="doSearch('a',this.value)">
+        </div>
+        <div class="srch-loading" id="a-loading">Searching...</div>
+        <div class="srch-list" id="a-list"></div>
+        <div id="a-tag"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:.875rem;line-height:1.4">U.S. Dept. of Education data · <a href="https://collegescorecard.ed.gov/data/api" target="_blank" style="color:var(--amber)">About the data</a></div>
+
+      <div class="sidebar-section">
+      <div class="sidebar-section-label">Cost basis</div>
+      <div class="field">
+        <label>Residency / price basis</label>
+        <select id="a-res" onchange="updateResTip('a')">
+          <option value="net" selected>Net price — actual cost after school's own aid</option>
+          <option value="in">In-state tuition + room &amp; board</option>
+          <option value="out">Out-of-state tuition + room &amp; board</option>
+        </select>
+        <div class="tip" id="a-res-tip">Net price is the DoE-reported average after grants and institutional aid — usually the most realistic figure for planning.</div>
+        <button class="tip-toggle" onclick="toggleResTip('a-res-explain')" id="a-res-toggle">What's the difference between these? ↓</button>
+        <div class="tip-expand" id="a-res-explain">
+          <h4>Net price</h4>
+          <p>What students <em>actually</em> paid on average after grants and scholarships directly from the school — free money, not loans. Reported by the DoE from FAFSA data. Usually the most realistic number for planning.</p>
+          <div class="example">e.g. Sticker tuition $58k → <span>net price $28k</span> after school aid</div>
+          <h4 style="margin-top:.75rem">In-state tuition</h4>
+          <p>The sticker price for residents of that state, before any aid. Public universities charge residents less because state taxpayers subsidize it. Does not include room &amp; board in the DoE figure — we add room &amp; board on top.</p>
+          <div class="example">e.g. U Michigan in-state <span>$17k/yr</span> vs out-of-state $55k/yr</div>
+          <h4 style="margin-top:.75rem">Out-of-state tuition</h4>
+          <p>Sticker price for non-residents. Often 2–3× the in-state rate at public universities. Private universities have no in/out distinction — everyone pays the same sticker price.</p>
+          <div class="example">Rule of thumb: <span>net price is usually the right choice</span> unless you know your exact residency situation</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Field of study</label>
+        <select id="a-major">
+          <option value="cs">Computer science / software engineering</option>
+          <option value="eng">Engineering (non-CS)</option>
+          <option value="business">Business / finance / accounting</option>
+          <option value="health">Health sciences / nursing</option>
+          <option value="stem">STEM — math, physics, chemistry</option>
+          <option value="bio">Biology / life sciences</option>
+          <option value="law_pre">Pre-law / political science</option>
+          <option value="edu">Education / teaching</option>
+          <option value="social">Social sciences / psychology</option>
+          <option value="arts">Arts, design &amp; humanities</option>
+          <option value="comm">Communications / marketing</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <div class="field pfx"><label>Family contrib./yr</label><span>$</span><input type="number" id="a-fam" value="10000" min="0" step="1000"></div>
+        <div class="field pfx"><label>Scholarships/yr</label><span>$</span><input type="number" id="a-schol" value="0" min="0" step="1000"></div>
+      </div>
+      </div><!-- end cost basis section -->
+
+      <div class="sidebar-section">
+      <div class="sidebar-section-label">Your financials</div>
+      <div class="field">
+        <label>Family income band (net price)</label>
+        <select id="a-income-band">
+          <option value="0-30000">Under $30,000</option>
+          <option value="30001-48000">$30,001 – $48,000</option>
+          <option value="48001-75000">$48,001 – $75,000</option>
+          <option value="75001-110000" selected>$75,001 – $110,000</option>
+          <option value="110001-plus">Over $110,000</option>
+        </select>
+        <div class="tip">Used to show your income band's actual net price, not the overall average</div>
+      </div>
+      </div><!-- end financials section -->
+
+      <div class="sidebar-section">
+      <div class="sidebar-section-label">Academic path</div>
+      <div class="field-row">
+        <div class="field"><label>Degree length</label>
+          <select id="a-yrs"><option value="2">2 years (assoc.)</option><option value="4" selected>4 years (bachelor's)</option><option value="5">5 years</option><option value="6">6 years (incl. master's)</option><option value="8">8 years (incl. PhD/JD/MD)</option></select>
+        </div>
+        <div class="field"><label>Job market</label>
+          <select id="a-mkt">
+            <option value="nyc">New York City metro</option><option value="sf">San Francisco / Bay Area</option><option value="la">Los Angeles</option>
+            <option value="seattle">Seattle</option><option value="chicago">Chicago</option><option value="boston">Boston</option>
+            <option value="austin">Austin / Denver / Atlanta</option><option value="mid" selected>Mid-size city</option>
+            <option value="suburban">Suburban / commuter area</option><option value="small">Small city / town</option><option value="rural">Rural</option>
+          </select>
+        </div>
+      </div>
+      </div><!-- end academic section -->
+
+      <div class="sidebar-section">
+      <div class="sidebar-section-label">Loan & living</div>
+      <div class="field">
+        <label>Living situation</label>
+        <select id="a-living">
+          <option value="oncampus" selected>On campus (room &amp; board)</option>
+          <option value="offcampus">Off campus (rent ~$1,200/mo)</option>
+          <option value="athome">Living at home (minimal cost)</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Loan interest rate %</label>
+          <input type="number" id="a-loanrate" value="6.5" min="1" max="15" step="0.1">
+        </div>
+        <div class="field"><label>Repayment plan</label>
+          <select id="a-repay">
+            <option value="standard" selected>Standard (10yr)</option>
+            <option value="idr">Income-driven (IDR)</option>
+          </select>
+        </div>
+      </div>
+      <div class="tip" id="a-idr-tip" style="display:none">IDR caps payments at ~10% of discretionary income. Remaining balance forgiven after 20–25 years. Monthly payment will be lower but total interest higher.</div>
+      </div><!-- end loan & living section -->
+
+      <button class="cta" id="a-btn" onclick="analyzeOne()" disabled>Analyze →</button>
+      <button class="sec-btn" id="a-reset" onclick="resetAnalyze()" style="display:none">↺ Reset</button>
+      <button class="sec-btn" id="a-copy" onclick="copyToCompare()" style="display:none">Copy to Compare tab →</button>
+      <button class="sec-btn" id="a-copy-plan" onclick="copyToPlan()" style="display:none">Copy to Plan &amp; Save tab →</button>
+      <button class="sec-btn" id="a-share" onclick="shareScenario()" style="display:none">🔗 Share this scenario</button>
+    </aside>
+
+    <main class="content">
+      <div class="empty" id="a-empty">
+        <div style="margin-bottom:1rem;display:flex;align-items:baseline;justify-content:center;gap:0;opacity:.22;font-family:var(--serif);font-size:1.8rem;letter-spacing:.03em">
+        <span style="color:var(--text)">DIPLOM</span>
+        <svg width="20" height="26" viewBox="0 0 16 20" style="display:inline-block;vertical-align:baseline;margin-bottom:-3px;overflow:visible">
+          <defs>
+            <linearGradient id="ag-empty" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#4f5bd5"/>
+              <stop offset="100%" stop-color="#d4a843"/>
+            </linearGradient>
+          </defs>
+          <text x="0" y="17" font-family="Georgia,serif" font-size="18" font-weight="700" fill="url(#ag-empty)">A</text>
+        </svg>
+        <span style="color:var(--gold);font-style:italic">TH</span>
+      </div>
+        <h2>The math behind your college decision</h2>
+        <p>Search any U.S. college. We model the full financial picture — tuition, debt, salary growth, and 20-year wealth — so the decision is based on numbers, not assumptions.</p>
+        <div class="hint-row">
+          <button class="hint" onclick="aHint('MIT')">MIT</button>
+          <button class="hint" onclick="aHint('University of Michigan')">U Michigan</button>
+          <button class="hint" onclick="aHint('NYU')">NYU</button>
+          <button class="hint" onclick="aHint('UCLA')">UCLA</button>
+          <button class="hint" onclick="aHint('Ohio State')">Ohio State</button>
+          <button class="hint" onclick="aHint('Georgia Tech')">Georgia Tech</button>
+        </div>
+      </div>
+      <div id="a-out" style="display:none"></div>
+    </main>
+  </div>
+</div>
+
+<!-- TAB 2 -->
+<div class="view" id="view-compare">
+
+  <!-- Side-by-side input columns — always visible -->
+  <div class="compare-shell">
+    <div class="scenario">
+      <div class="scen-hdr">
+        <div class="scen-label"><span class="sch-dot" style="background:var(--ca)"></span>Scenario A</div>
+      </div>
+      <div class="scen-inputs" id="cA-inputs"></div>
+    </div>
+    <div class="scenario">
+      <div class="scen-hdr">
+        <div class="scen-label"><span class="sch-dot" style="background:var(--cb)"></span>Scenario B</div>
+      </div>
+      <div class="scen-inputs" id="cB-inputs"></div>
+    </div>
+  </div>
+
+  <!-- Run button bar -->
+  <div style="background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:.875rem 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem">
+    <div style="font-size:12px;color:var(--text3)">Every input is independent — mix any school, major, market, or cost combination.</div>
+    <button onclick="runCompare()" style="background:var(--brand);color:#fff;border:none;border-radius:var(--r);padding:10px 28px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);white-space:nowrap;flex-shrink:0;transition:opacity .2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">Run comparison ↗</button>
+  </div>
+
+  <!-- Results section — hidden until run -->
+  <div id="c-summary-section" style="display:none">
+
+    <!-- Visual page break -->
+    <div style="background:var(--bg3);border-top:3px solid var(--brand);padding:.625rem 1.5rem;display:flex;align-items:center;gap:.75rem">
+      <span style="font-size:10px;font-family:var(--mono);font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--brand)">Results</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+    </div>
+
+    <!-- AI head-to-head -->
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border)">
+  
+    </div>
+
+    <!-- Summary strip -->
+    <div style="padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);background:var(--bg2)">
+      <div id="c-summary-strip"></div>
+    </div>
+
+    <!-- Separator before detail columns -->
+    <div style="display:flex;align-items:center;gap:1rem;padding:.875rem 1.5rem;background:var(--bg3);border-top:1px solid var(--border)">
+      <div style="width:3px;height:18px;background:var(--brand);border-radius:2px;flex-shrink:0"></div>
+      <span style="font-size:10px;font-family:var(--mono);font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)">Scenario detail</span>
+      <div style="flex:1;height:1px;background:var(--border)"></div>
+      <span style="font-size:10px;color:var(--text3);font-family:var(--mono)">
+        <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--ca);vertical-align:middle;margin-right:4px"></span>A &nbsp;&nbsp;
+        <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--cb);vertical-align:middle;margin-right:4px"></span>B
+      </span>
+    </div>
+    <!-- Side-by-side results columns -->
+    <div class="compare-shell">
+      <div class="scenario">
+        <div class="scen-results" id="cA-out"><div class="empty" style="min-height:20vh"><p>Results will appear here</p></div></div>
+      </div>
+      <div class="scenario">
+        <div class="scen-results" id="cB-out"><div class="empty" style="min-height:20vh"><p>Results will appear here</p></div></div>
+      </div>
+    </div>
+
+    <div style="padding:1rem 1.5rem;font-size:11px;color:var(--text3);background:var(--bg3);border-top:1px solid var(--border);line-height:1.6">Data: U.S. Dept. of Education College Scorecard · BLS Occupational Outlook Handbook. All projections in nominal dollars — not inflation-adjusted. For planning purposes only.</div>
+  </div>
+
+</div>
+
+<div class="view" id="view-plan">
+  <div class="analyze-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Target college</div>
+        <div class="srch-wrap">
+          <div class="srch-inner">
+            <span class="srch-icon">&#128269;</span>
+            <input type="text" id="p-q" placeholder="Search college..." autocomplete="off" oninput="doSearch('p',this.value)">
+          </div>
+          <div class="srch-loading" id="p-loading">Searching...</div>
+          <div class="srch-list" id="p-list"></div>
+          <div id="p-tag"></div>
+        </div>
+        <div class="field">
+          <label>Residency at enrollment</label>
+          <select id="p-res">
+            <option value="net" selected>Net price (after aid)</option>
+            <option value="in">In-state tuition</option>
+            <option value="out">Out-of-state tuition</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Child &amp; timeline</div>
+        <div class="field-row">
+          <div class="field"><label>Child's current age</label>
+            <input type="number" id="p-age" value="5" min="0" max="17" step="1">
+          </div>
+          <div class="field"><label>Enrollment age</label>
+            <input type="number" id="p-enroll" value="18" min="17" max="22" step="1">
+          </div>
+        </div>
+        <div class="field">
+          <label>Family income band (for aid estimate)</label>
+          <select id="p-income-band">
+            <option value="0-30000">Under $30,000</option>
+            <option value="30001-48000">$30,001 – $48,000</option>
+            <option value="48001-75000">$48,001 – $75,000</option>
+            <option value="75001-110000" selected>$75,001 – $110,000</option>
+            <option value="110001-plus">Over $110,000</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">529 plan (tax-advantaged)</div>
+        <div class="field-row">
+          <div class="field pfx"><label>Monthly contribution</label><span>$</span><input type="number" id="p-monthly" value="400" min="0" step="50"></div>
+          <div class="field pfx"><label>Current balance</label><span>$</span><input type="number" id="p-balance" value="0" min="0" step="1000"></div>
+        </div>
+        <button class="sec-btn" id="p-suggest-btn" onclick="suggestContribution()" style="margin-top:0;margin-bottom:.25rem">↗ Suggest monthly amount to fully cover</button>
+        <div id="p-suggest-result" style="display:none;font-size:11px;color:var(--green);padding:4px 0;line-height:1.5"></div>
+        <div class="field">
+          <label>State 529 tax deduction benefit</label>
+          <select id="p-state-deduct">
+            <option value="0">No deduction (or N/A)</option>
+            <option value="0.04" selected>~4% effective benefit (most states)</option>
+            <option value="0.06">~6% benefit (higher-deduction states)</option>
+            <option value="0.08">~8% benefit (PA, NY, high bracket)</option>
+          </select>
+        </div>
+        <div class="tip">Tax-free growth and withdrawals for qualified education expenses. 10% penalty if used for non-education.</div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Regular savings (taxable)</div>
+        <div class="field-row">
+          <div class="field pfx"><label>Monthly contribution</label><span>$</span><input type="number" id="p-monthly-taxable" value="100" min="0" step="50"></div>
+          <div class="field pfx"><label>Current balance</label><span>$</span><input type="number" id="p-balance-taxable" value="0" min="0" step="1000"></div>
+        </div>
+        <div class="tip">No tax benefit, but fully flexible — no penalty if unused for college.</div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Investment assumptions</div>
+        <div class="field-row">
+          <div class="field"><label>529 return %/yr</label><input type="number" id="p-return" value="7" min="1" max="12" step="0.5"></div>
+          <div class="field"><label>Taxable return %/yr</label><input type="number" id="p-return-taxable" value="6" min="1" max="12" step="0.5"></div>
+        </div>
+        <div class="tip">Taxable returns reduced by ~1% for tax drag on dividends/gains.</div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Tuition inflation</div>
+        <div class="field">
+          <label>Annual tuition inflation rate %</label>
+          <input type="number" id="p-inflation" value="4" min="1" max="8" step="0.5">
+          <div class="tip">Historically ~3-5%/yr. Elite privates trend higher (~4.5%), public schools lower (~3%).</div>
+        </div>
+      </div>
+
+      <button class="cta" id="p-btn" onclick="planSave()" disabled>Project my savings plan →</button>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="content">
+      <div class="empty" id="p-empty">
+        <div style="display:flex;align-items:baseline;gap:0;justify-content:center;margin-bottom:1rem;opacity:.22;font-family:var(--serif);font-size:1.8rem;letter-spacing:.03em">
+          <span style="color:var(--text)">DIPLOM</span>
+          <svg width="20" height="26" viewBox="0 0 16 20" style="display:inline-block;vertical-align:baseline;margin-bottom:-3px;overflow:visible">
+            <defs><linearGradient id="ag-plan" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#4f5bd5"/><stop offset="100%" stop-color="#d4a843"/></linearGradient></defs>
+            <text x="0" y="17" font-family="Georgia,serif" font-size="18" font-weight="700" fill="url(#ag-plan)">A</text>
+          </svg>
+          <span style="color:var(--gold);font-style:italic">TH</span>
+        </div>
+        <h2 style="font-family:var(--serif);font-size:1.5rem;color:var(--text2);margin-bottom:.5rem">Plan ahead for college costs</h2>
+        <p style="font-size:13px;color:var(--text3);max-width:380px;line-height:1.7;margin-bottom:1rem">Search a target college, enter your child's age and monthly savings, and we'll project whether your 529 plan will cover it — and what monthly amount closes any gap.</p>
+        <div class="hint-row">
+          <button class="hint" onclick="pHint('MIT')">MIT</button>
+          <button class="hint" onclick="pHint('University of Michigan')">U Michigan</button>
+          <button class="hint" onclick="pHint('Ohio State')">Ohio State</button>
+          <button class="hint" onclick="pHint('NYU')">NYU</button>
+          <button class="hint" onclick="pHint('UCLA')">UCLA</button>
+        </div>
+      </div>
+      <div id="p-out" style="display:none"></div>
+    </main>
+  </div>
+</div>
+
+<script>
+const MAJORS={
+  // BLS 2024 median salaries. start = entry-level (~60% of experienced median).
+  // y5/y10/y20 based on BLS wage percentiles and career progression data.
+  // mktSens = sensitivity to metro market premium (1.0=full, 0.2=minimal)
+  cs:      {n:"CS / software engineering", s:92000, y5:126000,y10:158000,y20:205000,g:"26%",j:"Software/ML engineer, data scientist, product manager",                  mktSens:1.0},
+  eng:     {n:"Engineering (non-CS)",       s:72000, y5:94000, y10:118000,y20:152000,g:"11%",j:"Mechanical, civil, electrical, aerospace, chemical engineer",           mktSens:0.8},
+  business:{n:"Business / finance",         s:55000, y5:74000, y10:98000, y20:138000,g:"7%", j:"Financial analyst, accountant, manager, consultant",                   mktSens:1.0},
+  health:  {n:"Health sciences / nursing",  s:61000, y5:76000, y10:92000, y20:115000,g:"13%",j:"Registered nurse, health admin, PA, allied health, dental hygienist",  mktSens:0.45},
+  stem:    {n:"STEM — math, physics",       s:65000, y5:84000, y10:108000,y20:140000,g:"10%",j:"Statistician, actuary, physicist, chemist, research scientist",         mktSens:0.75},
+  bio:     {n:"Biology / life sciences",    s:44000, y5:57000, y10:72000, y20:98000, g:"8%", j:"Biological scientist, biotech, pharma — grad degree often required for top roles",mktSens:0.5},
+  law_pre: {n:"Pre-law / political sci",    s:46000, y5:72000, y10:108000,y20:162000,g:"5%", j:"Paralegal (entry) → attorney w/ JD, policy analyst, government",       mktSens:0.9},
+  edu:     {n:"Education / teaching",       s:38000, y5:46000, y10:54000, y20:64000, g:"4%", j:"K–12 teacher, school counselor, admin — salaries set by district contracts",mktSens:0.2},
+  social:  {n:"Social sciences / psych",    s:40000, y5:51000, y10:63000, y20:80000, g:"5%", j:"Social worker, counselor, HR, UX researcher, nonprofit manager",        mktSens:0.35},
+  arts:    {n:"Arts, design & humanities",  s:36000, y5:46000, y10:57000, y20:74000, g:"3%", j:"Graphic designer, writer, art director, content strategist — wide variance",mktSens:0.6},
+  comm:    {n:"Communications / marketing", s:44000, y5:56000, y10:70000, y20:90000, g:"6%", j:"Marketing manager, PR specialist, digital media, brand strategy",       mktSens:0.7},
+};
+const MKT={nyc:1.38,sf:1.52,la:1.25,seattle:1.35,chicago:1.18,boston:1.32,austin:1.12,mid:1.0,suburban:0.93,small:0.85,rural:0.72};
+const NC={s:36000,y5:44000,y10:54000,y20:66000};
+const FIELDS="id,school.name,school.city,school.state,school.ownership,latest.cost.tuition.in_state,latest.cost.tuition.out_of_state,latest.cost.avg_net_price.public,latest.cost.avg_net_price.private,latest.cost.avg_net_price.by_income.public.by_income_level.0-30000,latest.cost.avg_net_price.by_income.public.by_income_level.30001-48000,latest.cost.avg_net_price.by_income.public.by_income_level.48001-75000,latest.cost.avg_net_price.by_income.public.by_income_level.75001-110000,latest.cost.avg_net_price.by_income.public.by_income_level.110001-plus,latest.cost.avg_net_price.by_income.private.by_income_level.0-30000,latest.cost.avg_net_price.by_income.private.by_income_level.30001-48000,latest.cost.avg_net_price.by_income.private.by_income_level.48001-75000,latest.cost.avg_net_price.by_income.private.by_income_level.75001-110000,latest.cost.avg_net_price.by_income.private.by_income_level.110001-plus,latest.cost.roomboard.oncampus,latest.aid.median_debt.completers.overall,latest.earnings.10_yrs_after_entry.median,latest.completion.rate_suppressed.overall,latest.admissions.admission_rate.overall,latest.student.size";
+const MAJOR_OPTS=Object.entries(MAJORS).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join("");
+const MKT_OPTS=`<option value="nyc">New York City metro</option><option value="sf">San Francisco / Bay Area</option><option value="la">Los Angeles</option><option value="seattle">Seattle</option><option value="chicago">Chicago</option><option value="boston">Boston</option><option value="austin">Austin / Denver / Atlanta</option><option value="mid" selected>Mid-size city</option><option value="suburban">Suburban / commuter area</option><option value="small">Small city / town</option><option value="rural">Rural</option>`;
+
+const fmt=n=>"$"+Math.round(n).toLocaleString();
+const fmtK=n=>"$"+Math.round(n/1000)+"k";
+const fmtP=n=>n!=null?(n*100).toFixed(0)+"%":"N/A";
+const ownL=o=>o===1?"Public":o===2?"Private nonprofit":"Private";
+const vcls=g=>g>80000?"vgood":g>20000?"vwarn":"vbad";
+const vtit=g=>g>80000?"Strong financial case":g>20000?"Viable — watch the debt":"Challenging case";
+let allCharts={}, srchTimers={}, srchData={};
+let aSchool=null, cSchools={cA:null,cB:null}, lastAnalysis=null, pSchool=null;
+
+// ── BUILD COMPARE INPUTS ──
+function buildScenarioInputs(slot){
+  const col=slot==="cA"?"tag-a":"tag-b";
+  document.getElementById(slot+"-inputs").innerHTML=`
+    <div class="field" style="margin-bottom:.5rem">
+      <label>College</label>
+      <div class="srch-wrap">
+        <div class="srch-inner">
+          <span class="srch-icon">&#128269;</span>
+          <input type="text" id="${slot}-q" placeholder="Search college..." autocomplete="off" oninput="doSearch('${slot}',this.value)">
+        </div>
+        <div class="srch-loading" id="${slot}-loading">Searching...</div>
+        <div class="srch-list" id="${slot}-list"></div>
+        <div id="${slot}-tag"></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Residency / price basis</label>
+      <select id="${slot}-res">
+        <option value="net" selected>Net price (after school aid)</option>
+        <option value="in">In-state tuition</option>
+        <option value="out">Out-of-state tuition</option>
+      </select>
+      <button class="tip-toggle" onclick="toggleResTip('${slot}-res-explain')">What's the difference? ↓</button>
+      <div class="tip-expand" id="${slot}-res-explain">
+        <h4>Net price</h4>
+        <p>What students actually paid after school grants &amp; scholarships (free money, not loans). DoE-reported. Usually most realistic.</p>
+        <div class="example">Sticker $58k → <span>net price $28k</span> after school aid</div>
+        <h4 style="margin-top:.625rem">In-state</h4>
+        <p>Sticker price for state residents before aid. Public universities charge residents less. Room &amp; board added on top.</p>
+        <h4 style="margin-top:.625rem">Out-of-state</h4>
+        <p>Non-resident sticker price — often 2–3× in-state at public universities. Private schools have no in/out distinction.</p>
+      </div>
+    </div>
+    <div class="field">
+      <label>Field of study</label>
+      <select id="${slot}-major">${MAJOR_OPTS}</select>
+    </div>
+    <div class="field-row">
+      <div class="field pfx"><label>Family contrib./yr</label><span>$</span><input type="number" id="${slot}-fam" value="10000" min="0" step="1000"></div>
+      <div class="field pfx"><label>Scholarships/yr</label><span>$</span><input type="number" id="${slot}-schol" value="0" min="0" step="1000"></div>
+    </div>
+    <div class="field">
+      <label>Family income band (for net price)</label>
+      <select id="${slot}-income-band">
+        <option value="0-30000">Under $30,000</option>
+        <option value="30001-48000">$30,001 – $48,000</option>
+        <option value="48001-75000">$48,001 – $75,000</option>
+        <option value="75001-110000" selected>$75,001 – $110,000</option>
+        <option value="110001-plus">Over $110,000</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Living situation</label>
+      <select id="${slot}-living">
+        <option value="oncampus" selected>On campus</option>
+        <option value="offcampus">Off campus (~$1,200/mo)</option>
+        <option value="athome">Living at home</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Loan rate %</label><input type="number" id="${slot}-loanrate" value="6.5" min="1" max="15" step="0.1"></div>
+      <div class="field"><label>Repayment</label>
+        <select id="${slot}-repay">
+          <option value="standard" selected>Standard (10yr)</option>
+          <option value="idr">Income-driven</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Degree length</label>
+        <select id="${slot}-yrs"><option value="2">2 years</option><option value="4" selected>4 years</option><option value="6">6 years</option></select>
+      </div>
+      <div class="field"><label>Job market</label><select id="${slot}-mkt">${MKT_OPTS}</select></div>
+    </div>`;
+}
+buildScenarioInputs("cA");
+buildScenarioInputs("cB");
+
+// ── SEARCH ──
+// ── NICKNAME / ALIAS LOOKUP ──
+const ALIASES={
+  // Abbreviations
+  "nyu":"New York University","mit":"Massachusetts Institute of Technology",
+  "ucla":"University of California Los Angeles","usc":"University of Southern California",
+  "uc berkeley":"University of California Berkeley","cal":"University of California Berkeley",
+  "ucb":"University of California Berkeley","uc davis":"University of California Davis",
+  "uc san diego":"University of California San Diego","ucsd":"University of California San Diego",
+  "ucsb":"University of California Santa Barbara","uc santa barbara":"University of California Santa Barbara",
+  "uc irvine":"University of California Irvine","uci":"University of California Irvine",
+  "uva":"University of Virginia","unc":"University of North Carolina",
+  "unc chapel hill":"University of North Carolina at Chapel Hill",
+  "ohio state":"Ohio State University","osu":"Ohio State University",
+  "penn state":"Pennsylvania State University","psu":"Pennsylvania State University",
+  "georgia tech":"Georgia Institute of Technology","gatech":"Georgia Institute of Technology",
+  "boston u":"Boston University","bu":"Boston University",
+  "boston college":"Boston College","bc":"Boston College",
+  "carnegie mellon":"Carnegie Mellon University","cmu":"Carnegie Mellon University",
+  "ut austin":"University of Texas at Austin","texas":"University of Texas at Austin",
+  "umich":"University of Michigan","u of m":"University of Michigan",
+  "michigan":"University of Michigan","u michigan":"University of Michigan",
+  "purdue":"Purdue University","nd":"University of Notre Dame",
+  "notre dame":"University of Notre Dame","duke":"Duke University",
+  "tulane":"Tulane University","emory":"Emory University",
+  "georgetown":"Georgetown University","gtown":"Georgetown University",
+  "george washington":"George Washington University","gwu":"George Washington University",
+  "american university":"American University","au":"American University",
+  "fordham":"Fordham University","villanova":"Villanova University",
+  "wake forest":"Wake Forest University","tufts":"Tufts University",
+  "brandeis":"Brandeis University","lehigh":"Lehigh University",
+  "northeastern":"Northeastern University","drexel":"Drexel University",
+  "temple":"Temple University","penn":"University of Pennsylvania",
+  "upenn":"University of Pennsylvania","u penn":"University of Pennsylvania",
+  "dartmouth":"Dartmouth College","brown":"Brown University",
+  "columbia":"Columbia University","cornell":"Cornell University",
+  "yale":"Yale University","harvard":"Harvard University",
+  "princeton":"Princeton University","stanford":"Stanford University",
+  "northwestern":"Northwestern University","vanderbilt":"Vanderbilt University",
+  "rice":"Rice University","tulane":"Tulane University",
+  "washu":"Washington University in St Louis","wash u":"Washington University in St Louis",
+  "wustl":"Washington University in St Louis",
+  "uw":"University of Washington","u washington":"University of Washington",
+  "uw madison":"University of Wisconsin-Madison","wisc":"University of Wisconsin-Madison",
+  "wisconsin":"University of Wisconsin-Madison","badgers":"University of Wisconsin-Madison",
+  "illinois":"University of Illinois Urbana-Champaign","uiuc":"University of Illinois Urbana-Champaign",
+  "u illinois":"University of Illinois Urbana-Champaign",
+  "indiana":"Indiana University Bloomington","iu":"Indiana University Bloomington",
+  "minnesota":"University of Minnesota","u of mn":"University of Minnesota",
+  "iowa":"University of Iowa","iowa state":"Iowa State University",
+  "nebraska":"University of Nebraska-Lincoln","ku":"University of Kansas",
+  "kansas":"University of Kansas","mizzou":"University of Missouri",
+  "missouri":"University of Missouri","auburn":"Auburn University",
+  "alabama":"University of Alabama","ole miss":"University of Mississippi",
+  "mississippi state":"Mississippi State University","lsu":"Louisiana State University",
+  "arkansas":"University of Arkansas","kentucky":"University of Kentucky",
+  "tennessee":"University of Tennessee","vols":"University of Tennessee",
+  "virginia tech":"Virginia Polytechnic Institute","vt":"Virginia Polytechnic Institute",
+  "fsu":"Florida State University","florida state":"Florida State University",
+  "uf":"University of Florida","u florida":"University of Florida",
+  "miami":"University of Miami","usf":"University of South Florida",
+  "ncsu":"North Carolina State University","nc state":"North Carolina State University",
+  "clemson":"Clemson University","sc":"University of South Carolina",
+  "asu":"Arizona State University","arizona state":"Arizona State University",
+  "ua":"University of Arizona","u of arizona":"University of Arizona",
+  "csu":"Colorado State University","cu boulder":"University of Colorado Boulder",
+  "colorado":"University of Colorado Boulder","uconn":"University of Connecticut",
+  "rutgers":"Rutgers University","njit":"New Jersey Institute of Technology",
+  "rpi":"Rensselaer Polytechnic Institute","rensselaer":"Rensselaer Polytechnic Institute",
+  "case western":"Case Western Reserve University","cwru":"Case Western Reserve University",
+  "depaul":"DePaul University","loyola chicago":"Loyola University Chicago",
+  "marquette":"Marquette University","creighton":"Creighton University",
+  "denver":"University of Denver","colorado state":"Colorado State University",
+  "byu":"Brigham Young University","utah":"University of Utah",
+  "unlv":"University of Nevada Las Vegas","nevada":"University of Nevada",
+  "hawaii":"University of Hawaii","oregon":"University of Oregon",
+  "oregon state":"Oregon State University","uo":"University of Oregon",
+  "san diego state":"San Diego State University","sdsu":"San Diego State University",
+  "sfsu":"San Francisco State University","sjsu":"San Jose State University",
+  "cal poly":"California Polytechnic State University","calpoly":"California Polytechnic State University",
+  "csun":"California State University Northridge","csulb":"California State University Long Beach",
+  "hofstra":"Hofstra University","stony brook":"Stony Brook University",
+  "suny":"State University of New York","cuny":"City University of New York",
+  "city college":"City College of New York","baruch":"Baruch College",
+  "hunter":"Hunter College","brooklyn college":"Brooklyn College",
+  "new school":"The New School","pratt":"Pratt Institute",
+  "parsons":"Parsons School of Design","fit":"Fashion Institute of Technology",
+  "juilliard":"The Juilliard School","nyu stern":"New York University",
+  "nyu tisch":"New York University","nyu tandon":"New York University",
+};
+
+function resolveAlias(q){
+  const lower=q.trim().toLowerCase();
+  return ALIASES[lower]||q;
+}
+
+async function doSearch(slot,q){
+  clearTimeout(srchTimers[slot]);
+  const list=document.getElementById(slot+"-list");
+  const load=document.getElementById(slot+"-loading");
+  if(q.length<2){list.style.display="none";load.style.display="none";return;}
+  const resolvedQ=resolveAlias(q); // map nickname to official name
+  srchTimers[slot]=setTimeout(async()=>{
+    load.style.display="block"; list.style.display="none";
+    try{
+      const r=await fetch(`/api/search?q=${encodeURIComponent(resolvedQ)}&fields=${encodeURIComponent(FIELDS)}&per_page=20`);
+      const d=await r.json();
+      srchData[slot]=d.results||[];
+      load.style.display="none";
+      if(!srchData[slot].length){
+        list.innerHTML=`<button class="srch-item" disabled>No results — try a broader search term</button>`;
+        list.style.display="block"; return;
+      }
+      list.innerHTML=srchData[slot].map((s,i)=>{
+        const sz=s["latest.student.size"], adm=s["latest.admissions.admission_rate.overall"];
+        const cost=s["latest.cost.tuition.in_state"];
+        const pills=[sz?sz.toLocaleString()+" students":"", adm!=null?fmtP(adm)+" admit":"", cost?"In-state "+fmtK(cost):""].filter(Boolean).map(p=>`<span class="pill">${p}</span>`).join("");
+        return`<button class="srch-item" onclick="pickSchool('${slot}',${i})">
+          <div style="font-size:13px;font-weight:500;margin-bottom:2px">${s["school.name"]}</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:2px">${s["school.city"]}, ${s["school.state"]} · ${ownL(s["school.ownership"])}</div>
+          <div>${pills}</div>
+        </button>`;
+      }).join("");
+      list.style.display="block";
+    }catch(e){
+      load.style.display="none";
+      list.innerHTML=`<button class="srch-item" disabled style="color:var(--red)">Error: ${e.message} — is the server running?</button>`;
+      list.style.display="block";
+    }
+  },400);
+}
+
+function pickSchool(slot,i){
+  const s=srchData[slot][i];
+  document.getElementById(slot+"-list").style.display="none";
+  document.getElementById(slot+"-q").value=s["school.name"];
+  const cls=slot==="a"?"tag-amber":slot==="p"?"tag-amber":slot==="cA"?"tag-a":"tag-b";
+  document.getElementById(slot+"-tag").innerHTML=
+    `<div class="school-tag ${cls}">${s["school.name"]}<button class="tag-x" onclick="clearSchool('${slot}')">✕</button></div>`;
+  if(slot==="a"){aSchool=s; document.getElementById("a-btn").disabled=false; document.getElementById("a-btn").textContent="Analyze →";}
+  else if(slot==="p"){pSchool=s; document.getElementById("p-btn").disabled=false;}
+  else cSchools[slot]=s;
+}
+
+function clearSchool(slot){
+  if(slot==="a"){aSchool=null; document.getElementById("a-btn").disabled=true;}
+  else if(slot==="p"){pSchool=null; document.getElementById("p-btn").disabled=true;}
+  else cSchools[slot]=null;
+  document.getElementById(slot+"-q").value="";
+  document.getElementById(slot+"-tag").innerHTML="";
+}
+
+function aHint(n){document.getElementById("a-q").value=n; doSearch("a",n);}
+function pHint(n){document.getElementById("p-q").value=n; doSearch("p",n);}
+
+function updateResTip(slot){
+  const v=document.getElementById(slot+"-res").value;
+  const tips={net:"Net price: avg actual cost after school grants & aid — most realistic for planning.",in:"In-state tuition + room & board — requires state residency.",out:"Out-of-state tuition + room & board — often 2–3× in-state at public universities."};
+  const el=document.getElementById(slot+"-res-tip");
+  if(el)el.textContent=tips[v]||"";
+}
+
+function toggleResTip(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const open=el.classList.toggle("open");
+  // update button label
+  const btn=el.previousElementSibling;
+  if(btn&&btn.classList.contains("tip-toggle")){
+    const base=btn.textContent.replace(" ↓","").replace(" ↑","");
+    btn.textContent=base+(open?" ↑":" ↓");
+  }
+}
+
+// ── MODELS ──
+function getPrice(s,res,incomeBand){
+  const o=s["school.ownership"];
+  if(res==="net"){
+    const band=incomeBand||"75001-110000";
+    const pubKey="latest.cost.avg_net_price.by_income.public.by_income_level."+band;
+    const privKey="latest.cost.avg_net_price.by_income.private.by_income_level."+band;
+    const bandPrice=s[privKey]||s[pubKey];
+    // Fall back to overall average if band not available
+    return bandPrice||s["latest.cost.avg_net_price.private"]||s["latest.cost.avg_net_price.public"]||s["latest.cost.tuition.in_state"]||30000;
+  }
+  if(res==="in")  return s["latest.cost.tuition.in_state"]||(o===1?12000:40000);
+  return s["latest.cost.tuition.out_of_state"]||s["latest.cost.tuition.in_state"]||(o===1?30000:44000);
+}
+
+// Helper: get income band label
+function bandLabel(band){
+  const labels={"0-30000":"under $30k","30001-48000":"$30k–$48k","48001-75000":"$48k–$75k","75001-110000":"$75k–$110k","110001-plus":"over $110k"};
+  return labels[band]||band;
+}
+
+function calcCost(s,res,yrs,fam,schol,incomeBand,living,loanRatePct,repay,startSalary){
+  const tuit=getPrice(s,res,incomeBand);
+  // Living situation affects annual housing/living cost
+  const schoolRoom=s["latest.cost.roomboard.oncampus"]||14000;
+  const room=living==="oncampus"?schoolRoom:living==="offcampus"?14400:3000; // offcampus ~$1200/mo, home minimal
+  // Grad school years (5+) have higher loan rates — model as blended
+  const undergradYrs=Math.min(yrs,4);
+  const gradYrs=Math.max(0,yrs-4);
+  const ugRate=(loanRatePct||6.5)/100;
+  const gradRate=Math.min((loanRatePct||6.5)+1.5,12)/100; // grad PLUS ~1.5% higher
+  const tot=tuit+room;
+  const annBorrow=Math.max(0,tot-fam-schol);
+  const ugBorrow=annBorrow*undergradYrs;
+  const gradBorrow=annBorrow*gradYrs;
+  const totalBorrow=ugBorrow+gradBorrow;
+  const cost=tot*yrs;
+  let mthly=0, repayMonths=120;
+  if(totalBorrow>0){
+    if(repay==="idr"&&startSalary>0){
+      // IDR: ~10% of discretionary income (AGI - 225% poverty line ~$33k)
+      const discretionary=Math.max(0,startSalary-33000);
+      mthly=Math.max(0,discretionary*0.10/12);
+      repayMonths=240; // 20yr forgiveness
+    } else {
+      const blendedRate=totalBorrow>0?((ugBorrow*ugRate)+(gradBorrow*gradRate))/totalBorrow:ugRate;
+      mthly=totalBorrow*(blendedRate/12)/(1-Math.pow(1+blendedRate/12,-120));
+      repayMonths=120;
+    }
+  }
+  const totalPaid=mthly*repayMonths;
+  return{tuit,room,tot,borrow:totalBorrow,cost,mthly,interest:Math.max(0,totalPaid-totalBorrow),
+         yrs,fam,schol,res,incomeBand,living,loanRatePct:loanRatePct||6.5,repay:repay||"standard",
+         repayMonths,ugRate,gradRate,undergradYrs,gradYrs};
+}
+
+function interp(a,b,t){return Math.round(a+(b-a)*t);}
+
+function wealth20(c,maj,mktMult){
+  // Apply market sensitivity: not all fields benefit equally from metro premiums
+  // edu/social benefit little; CS/finance benefit fully
+  const sens=maj.mktSens||1.0;
+  const adjMaj=v=>Math.round(v*(1+(mktMult-1)*sens));
+  // No-college baseline: moderate market sensitivity (0.65)
+  // — blue-collar/entry wages follow the market but not as strongly as professional sectors
+  const adjNC=v=>Math.round(v*(1+(mktMult-1)*0.65));
+  const s0=adjMaj(maj.s),s5=adjMaj(maj.y5),s10=adjMaj(maj.y10),s20=adjMaj(maj.y20);
+  const nc0=adjNC(NC.s),nc5=adjNC(NC.y5),nc10=adjNC(NC.y10);
+  const loan=c.mthly*12;
+  // opportunity cost: what loan payments would be worth if invested at 7%
+  const INV_RATE=0.07;
+  let cw=0,nw=0,be=null,oppCost=0;
+  const ca=[0],na=[0];
+  for(let yr=1;yr<=20;yr++){
+    const inSch=yr<=c.yrs, post=yr-c.yrs;
+    let sal=0;
+    if(!inSch){
+      if(post<=5)        sal=interp(s0,s5,(post-1)/4);
+      else if(post<=10)  sal=interp(s5,s10,(post-5)/5);
+      else               sal=interp(s10,s20,(post-10)/10);
+    }
+    const lp=(!inSch&&yr<=c.yrs+10)?loan:0;
+    cw+=sal-lp;
+    // compound opportunity cost of each year of loan payments
+    if(lp>0) oppCost=(oppCost+lp)*( 1+INV_RATE);
+    else     oppCost*=(1+INV_RATE);
+    let nc=yr<=5?interp(nc0,nc5,(yr-1)/4):yr<=10?interp(nc5,nc10,(yr-5)/5):nc10;
+    nw+=nc;
+    ca.push(Math.round(cw)); na.push(Math.round(nw));
+    if(!be&&cw>nw)be=yr;
+  }
+  const totalLoanPaid=c.mthly*120;
+  return{ca,na,gap:ca[20]-na[20],be,s0,s5,s10,s20,oppCost:Math.round(oppCost),totalLoanPaid:Math.round(totalLoanPaid)};
+}
+
+// ── RENDER ──
+function renderCard(s,c,w,dti,mktName,maj,res){
+  const e10=s["latest.earnings.10_yrs_after_entry.median"];
+  const debt=s["latest.aid.median_debt.completers.overall"];
+  const comp=s["latest.completion.rate_suppressed.overall"];
+  const adm=s["latest.admissions.admission_rate.overall"];
+  const vc=vcls(w.gap);
+  const incomeBandUsed=c.incomeBand||"75001-110000";
+  const pubBandKey="latest.cost.avg_net_price.by_income.public.by_income_level."+incomeBandUsed;
+  const privBandKey="latest.cost.avg_net_price.by_income.private.by_income_level."+incomeBandUsed;
+  const netPBand=s[privBandKey]||s[pubBandKey];
+  const netP=netPBand||s["latest.cost.avg_net_price.private"]||s["latest.cost.avg_net_price.public"];
+  const netPLabel=netPBand?"Net price — "+bandLabel(incomeBandUsed)+" income band":"Net price (DoE overall average)";
+  const netPNote=netPBand?"DoE reported for your income band — most accurate":"DoE reports overall average — this school does not have income-band data";
+  const inStateT=s["latest.cost.tuition.in_state"];
+  const outStateT=s["latest.cost.tuition.out_of_state"];
+  const priceBasisLabel=res==="net"?(netPBand?"Net price — "+bandLabel(incomeBandUsed)+" income":"Net price (DoE overall average)"):res==="in"?"In-state tuition":"Out-of-state tuition";
+  const priceBasisVal=res==="net"?(netP?fmt(netP)+"/yr":"N/A"):res==="in"?(inStateT?fmt(inStateT):"N/A"):(outStateT?fmt(outStateT):"N/A");
+  const priceBasisNote=res==="net"?(netPBand?"DoE reported for the "+bandLabel(incomeBandUsed)+" income band — specific to your family's bracket":"DoE reports overall average for this school — band-specific data not available"):res==="in"?"Sticker tuition before aid — your net may be lower":"Non-resident sticker tuition before aid";
+  // Reference rows for the other two (dimmed, for context only)
+  const otherRows=res!=="net"&&netP?`<div class="stat-row" style="opacity:.45"><span class="stat-label">Net price (DoE avg)<span class="stat-note">Not used in your model — shown for reference</span></span><span class="stat-val">${fmt(netP)}/yr</span></div>`:"";
+  return`
+  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--rl);padding:.875rem 1.125rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <div>
+      <div style="font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Estimated starting salary</div>
+      <div style="font-size:2rem;font-weight:500;font-family:var(--mono);color:var(--green)">${fmt(w.s0)}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:1px">${maj.n} · ${mktName}</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:10px;color:var(--text3);font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Career trajectory</div>
+      <div style="font-size:13px;font-family:var(--mono);color:var(--text)">${fmtK(w.s0)} <span style="color:var(--text3)">→</span> ${fmtK(w.s5)} <span style="color:var(--text3)">→</span> ${fmtK(w.s10)}</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:1px">start · 5yr · 10yr · BLS 2024 medians</div>
+    </div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Total cost</div><div class="metric-val r">${fmtK(c.cost)}</div><div class="metric-sub">Tuition+${c.living==="athome"?"home":"room"} × ${c.yrs}yr</div></div>
+    <div class="metric"><div class="metric-label">Total debt</div><div class="metric-val a">${fmt(c.borrow)}</div><div class="metric-sub">${c.mthly>0?fmt(c.mthly)+"/mo":c.repay==="idr"?"IDR":"no loans"}</div></div>
+    <div class="metric"><div class="metric-label">Loan rate</div><div class="metric-val">${c.loanRatePct}%</div><div class="metric-sub">${c.gradYrs>0?"blended w/ "+((c.loanRatePct+1.5).toFixed(1))+"% grad":"undergrad rate"}</div></div>
+    <div class="metric"><div class="metric-label">Debt-to-income</div><div class="metric-val ${dti<0.75?"g":dti<1.5?"a":"r"}">${dti.toFixed(2)}×</div><div class="metric-sub">${dti<0.75?"Low risk":dti<1.5?"Manageable":"High risk"}</div></div>
+    <div class="metric"><div class="metric-label">Break-even</div><div class="metric-val ${(w.be||99)<=10?"g":(w.be||99)<=16?"a":"r"}">${w.be?w.be+"yr":"20yr+"}</div><div class="metric-sub">vs no-college path</div></div>
+    <div class="metric"><div class="metric-label">20-yr wealth gap</div><div class="metric-val ${w.gap>0?"g":"r"}">${w.gap>=0?"+":""}${fmtK(w.gap)}</div><div class="metric-sub">vs no college · nominal $</div></div>
+  </div>
+  <div class="verdict ${vc}"><h3>${vtit(w.gap)}</h3><p>Break-even is year ${w.be||"20+"} — the year cumulative college earnings (after loan payments of ${fmt(c.mthly)}/mo) overtake what you'd have earned going straight into the workforce. Debt-to-income of ${dti.toFixed(2)}× means total loans equal ${dti.toFixed(1)} years of starting salary.</p></div>
+  <div class="stat-card">
+    <div class="stat-row" style="background:rgba(79,91,213,.07);border-left:3px solid var(--brand)"><span class="stat-label" style="font-weight:500;color:var(--text)">${priceBasisLabel} — your basis<span class="stat-note">${priceBasisNote}</span></span><span class="stat-val" style="font-size:15px;color:var(--brand)">${priceBasisVal}</span></div>
+    <div class="stat-row" style="background:rgba(79,91,213,.07);border-left:3px solid var(--brand)"><span class="stat-label" style="font-weight:500;color:var(--text)">Your annual cost (tuition + room &amp; board)<span class="stat-note">After family contribution of ${fmt(c.fam)}/yr and scholarships of ${fmt(c.schol)}/yr</span></span><span class="stat-val" style="font-size:15px;color:var(--brand)">${fmt(c.tot)}/yr</span></div>
+    ${otherRows}
+    <div class="stat-row"><span class="stat-label">DoE median debt at graduation</span><span class="stat-val ${debt?(debt<20000?"g":debt<35000?"a":"r"):""}">${debt?fmt(debt):"N/A"}</span></div>
+    <div class="stat-row"><span class="stat-label">Your modeled debt</span><span class="stat-val ${c.borrow<20000?"g":c.borrow<35000?"a":"r"}">${fmt(c.borrow)}</span></div>
+    <div class="stat-row"><span class="stat-label">Total loan payments (principal + interest)<span class="stat-note">Deducted from earnings yr ${c.yrs+1}–${c.yrs+10} in wealth model</span></span><span class="stat-val r">${fmt(w.totalLoanPaid)}</span></div>
+    <div class="stat-row"><span class="stat-label">Opportunity cost of loan payments<span class="stat-note">What ${fmt(c.mthly)}/mo invested at 7% would be worth after 10yr</span></span><span class="stat-val a">${fmt(w.oppCost)}</span></div>
+    <div class="stat-row"><span class="stat-label">DoE earnings 10yr after entry<span class="stat-note">All graduates, all majors — your major may differ</span></span><span class="stat-val ${e10?(e10>60000?"g":e10>45000?"a":"r"):""}">${e10?fmt(e10):"N/A"}</span></div>
+    <div class="stat-row"><span class="stat-label">Projected salary — ${maj.n}<span class="stat-note">Progressive growth model</span></span><span class="stat-val g">${fmtK(w.s0)} → ${fmtK(w.s5)} → ${fmtK(w.s10)}</span></div>
+    <div class="stat-row"><span class="stat-label">Graduation rate</span><span class="stat-val ${comp?(comp>.7?"g":comp>.5?"a":"r"):""}">${comp?fmtP(comp):"N/A"}</span></div>
+    <div class="stat-row"><span class="stat-label">Admission rate</span><span class="stat-val">${adm!=null?fmtP(adm):"N/A"}</span></div>
+  </div>`;
+}
+
+function chartCfg(){
+  const light=document.documentElement.getAttribute('data-theme')==='light';
+  const tick=light?"#80807a":"#8b949e";
+  const grid=light?"rgba(0,0,0,.05)":"rgba(255,255,255,.04)";
+  const ttBg=light?"#ffffff":"#21262d";
+  const ttBdr=light?"#e0ded8":"#30363d";
+  const ttTitle=light?"#1a1a2e":"#c9d1d9";
+  const ttBody=light?"#80807a":"#8b949e";
+  return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:ttBg,borderColor:ttBdr,borderWidth:1,titleColor:ttTitle,bodyColor:ttBody,callbacks:{label:cx=>` ${cx.dataset.label}: $${Math.round(cx.raw).toLocaleString()}`}}},scales:{x:{ticks:{color:tick,font:{size:10},maxTicksLimit:8},grid:{color:grid}},y:{ticks:{color:tick,font:{size:10},callback:v=>"$"+Math.round(v/1000)+"k"},grid:{color:grid}}}};
+}
+
+// ── ANALYZE ──
+async function analyzeOne(){
+  if(!aSchool)return;
+  const btn=document.getElementById("a-btn");
+  btn.disabled=true; btn.textContent="Analyzing...";
+  const s=aSchool;
+  const majKey=document.getElementById("a-major").value, maj=MAJORS[majKey];
+  const mktKey=document.getElementById("a-mkt").value, mktMult=MKT[mktKey];
+  const mktName=document.getElementById("a-mkt").options[document.getElementById("a-mkt").selectedIndex].text;
+  const yrs=+document.getElementById("a-yrs").value;
+  const fam=+document.getElementById("a-fam").value||0;
+  const schol=+document.getElementById("a-schol").value||0;
+  const res=document.getElementById("a-res").value;
+  const incomeBand=document.getElementById("a-income-band").value;
+  const living=document.getElementById("a-living").value;
+  const loanRatePct=+document.getElementById("a-loanrate").value||6.5;
+  const repay=document.getElementById("a-repay").value;
+  const w0=wealth20(calcCost(s,res,yrs,fam,schol,incomeBand,living,loanRatePct,repay,0),MAJORS[majKey],mktMult);
+  const c=calcCost(s,res,yrs,fam,schol,incomeBand,living,loanRatePct,repay,w0.s0);
+  const w=wealth20(c,maj,mktMult);
+  const dti=w.s0>0?c.borrow/w.s0:0;
+  lastAnalysis={s,c,w,dti,maj,majKey,mktKey,mktMult,mktName,yrs,fam,schol,res,incomeBand,living,loanRatePct,repay};
+
+  document.getElementById("a-empty").style.display="none";
+  document.getElementById("a-out").style.display="block";
+  document.getElementById("a-reset").style.display="block";
+  document.getElementById("a-copy").style.display="block";
+  document.getElementById("a-copy-plan").style.display="block";
+  document.getElementById("a-share").style.display="block";
+
+  const wLabels=Array.from({length:21},(_,i)=>i===0?"Now":`Yr ${i}`);
+  const salPts=[{yr:0,sal:w.s0},{yr:3,sal:interp(w.s0,w.s5,2/4)},{yr:5,sal:w.s5},{yr:8,sal:interp(w.s5,w.s10,3/5)},{yr:10,sal:w.s10},{yr:15,sal:interp(w.s10,w.s20,5/10)},{yr:20,sal:w.s20}];
+
+  document.getElementById("a-out").innerHTML=`
+  <div style="margin-bottom:1rem">
+    <div style="font-family:var(--serif);font-size:1.2rem;color:var(--text);margin-bottom:2px">${s["school.name"]}</div>
+    <div style="font-size:11px;color:var(--text3)">${s["school.city"]}, ${s["school.state"]} · ${ownL(s["school.ownership"])} · ${maj.n} · ${mktName}</div>
+  </div>
+  `+renderCard(s,c,w,dti,mktName,maj,res)+`
+  <div class="charts-2">
+    <div class="chart-card">
+      <div class="chart-title">20-year cumulative wealth</div>
+      <div class="chart-sub">After all costs, lost income during school, and loan payments</div>
+      <div class="leg-row"><span class="leg"><span class="leg-sq" style="background:#a78bfa"></span>College path</span><span class="leg"><span class="leg-sq" style="background:#8b949e;opacity:.5"></span>No college</span></div>
+      <div class="chart-wrap" style="height:190px"><canvas id="a-wch" role="img" aria-label="20-year wealth comparison"></canvas></div>
+      <div style="margin-top:.625rem;font-size:11px;color:var(--text3);line-height:1.5">
+        <strong style="color:var(--text3)">All values in nominal (future) dollars.</strong> At 3% annual inflation, $1 in year 20 is worth about $0.55 today — so a ${fmtK(w.gap)} gap at year 20 has roughly ${fmtK(Math.round(w.gap*0.55))} of purchasing power in today's money. Inflation affects both paths equally so the relative comparison holds, but absolute figures overstate real wealth.
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Salary growth — ${maj.n}</div>
+      <div class="chart-sub">Progressive earnings trajectory in ${mktName}</div>
+      <div class="chart-wrap" style="height:190px"><canvas id="a-sch" role="img" aria-label="Salary growth over career"></canvas></div>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Debt paydown schedule</div>
+    <div class="chart-sub">How your ${fmt(c.borrow)} in loans decreases over repayment · ${fmt(c.mthly)}/mo at ${c.loanRatePct}% · ${c.repay==="idr"?"Income-driven repayment":"Standard 10-year plan"}</div>
+    <div class="leg-row">
+      <span class="leg"><span class="leg-sq" style="background:#4f5bd5"></span>Principal paid</span>
+      <span class="leg"><span class="leg-sq" style="background:#d4a843"></span>Interest paid</span>
+      <span class="leg"><span class="leg-sq" style="background:rgba(127,119,221,.15);border:1px solid #a78bfa"></span>Remaining balance</span>
+    </div>
+    <div class="chart-wrap" style="height:200px"><canvas id="a-dch" role="img" aria-label="Debt paydown chart showing principal and interest payments over 10 years"></canvas></div>
+    <div id="a-payoff-stats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:.875rem"></div>
+  </div>
+  <div class="disclaimer">Data: U.S. Dept. of Education College Scorecard (March 2026) · BLS Occupational Outlook Handbook. All projections in nominal (not inflation-adjusted) dollars. For planning purposes only — not financial advice.</div>`;
+
+  ["a-wch","a-sch","a-dch"].forEach(id=>{if(allCharts[id]){allCharts[id].destroy();delete allCharts[id];}});
+  allCharts["a-wch"]=new Chart(document.getElementById("a-wch"),{type:"line",data:{labels:wLabels,datasets:[{label:"College path",data:w.ca,borderColor:"#a78bfa",backgroundColor:"rgba(167,139,250,.08)",fill:true,borderWidth:2.5,tension:.4,pointRadius:0},{label:"No college",data:w.na,borderColor:"#8b949e",backgroundColor:"transparent",borderWidth:1.5,borderDash:[5,3],tension:.4,pointRadius:0}]},options:chartCfg()});
+  allCharts["a-sch"]=new Chart(document.getElementById("a-sch"),{type:"bar",data:{labels:salPts.map(p=>"Yr "+p.yr),datasets:[{label:"Salary",data:salPts.map(p=>p.sal),backgroundColor:document.documentElement.getAttribute('data-theme')==='light'?"rgba(150,112,10,.75)":"rgba(212,168,67,.75)",borderRadius:4}]},options:{...chartCfg(),plugins:{...chartCfg().plugins,legend:{display:false}},scales:{x:{ticks:{color:"#8b949e",font:{size:10}},grid:{display:false}},y:{ticks:{color:"#8b949e",font:{size:10},callback:v=>"$"+Math.round(v/1000)+"k"},grid:{color:"rgba(255,255,255,.04)"}}}}});
+
+  // Debt paydown chart — amortization over 10 years
+  if(c.borrow>0){
+    const rate=(c.loanRatePct||6.5)/100/12, n=c.repayMonths||120, pmt=c.mthly;
+    let bal=c.borrow;
+    const debtLabels=[],prinData=[],intData=[],balData=[];
+    for(let yr=1;yr<=10;yr++){
+      let yearPrin=0,yearInt=0;
+      for(let m=0;m<12;m++){
+        const intM=bal*rate;
+        const prinM=Math.min(pmt-intM,bal);
+        yearInt+=intM; yearPrin+=prinM;
+        bal=Math.max(0,bal-prinM);
+      }
+      debtLabels.push("Yr "+(c.yrs+yr));
+      prinData.push(Math.round(yearPrin));
+      intData.push(Math.round(yearInt));
+      balData.push(Math.round(bal));
+    }
+    const totalInt=Math.round(c.mthly*120-c.borrow);
+    const totalPaid=Math.round(c.mthly*120);
+    document.getElementById("a-payoff-stats").innerHTML=`
+      <div style="background:var(--bg3);border-radius:var(--r);padding:.625rem .875rem">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:2px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em">Monthly payment</div>
+        <div style="font-size:18px;font-weight:500;font-family:var(--mono);color:var(--text)">${fmt(c.mthly)}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:1px">for 10 years</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:var(--r);padding:.625rem .875rem">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:2px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em">Total interest paid</div>
+        <div style="font-size:18px;font-weight:500;font-family:var(--mono);color:var(--amber)">${fmt(totalInt)}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:1px">${Math.round(totalInt/c.borrow*100)}% of original loan</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:var(--r);padding:.625rem .875rem">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:2px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.05em">Total cash out</div>
+        <div style="font-size:18px;font-weight:500;font-family:var(--mono);color:var(--text)">${fmt(totalPaid)}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:1px">principal + interest</div>
+      </div>`;
+    const light=document.documentElement.getAttribute('data-theme')==='light';
+    const cfg=chartCfg();
+    allCharts["a-dch"]=new Chart(document.getElementById("a-dch"),{
+      type:"bar",
+      data:{
+        labels:debtLabels,
+        datasets:[
+          {label:"Principal paid",data:prinData,backgroundColor:"#4f5bd5",borderRadius:3,stack:"payments"},
+          {label:"Interest paid",data:intData,backgroundColor:"#d4a843",borderRadius:3,stack:"payments"},
+          {label:"Remaining balance",data:balData,type:"line",borderColor:"#a78bfa",backgroundColor:"transparent",borderWidth:2,tension:.4,pointRadius:3,pointBackgroundColor:"#a78bfa",yAxisID:"y2"},
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{
+            backgroundColor:cfg.plugins.tooltip.backgroundColor,
+            borderColor:cfg.plugins.tooltip.borderColor,
+            borderWidth:1,
+            titleColor:cfg.plugins.tooltip.titleColor,
+            bodyColor:cfg.plugins.tooltip.bodyColor,
+            callbacks:{label:cx=>{
+              const labels=["Principal paid","Interest paid","Remaining balance"];
+              return` ${cx.dataset.label}: $${Math.round(cx.raw).toLocaleString()}`;
+            }}
+          }
+        },
+        scales:{
+          x:{ticks:{color:light?"#80807a":"#8b949e",font:{size:10}},grid:{display:false},stacked:true},
+          y:{ticks:{color:light?"#80807a":"#8b949e",font:{size:10},callback:v=>"$"+Math.round(v/1000)+"k"},grid:{color:light?"rgba(0,0,0,.05)":"rgba(255,255,255,.04)"},stacked:true,title:{display:true,text:"Annual payment",color:light?"#80807a":"#8b949e",font:{size:10}}},
+          y2:{position:"right",ticks:{color:"#a78bfa",font:{size:10},callback:v=>"$"+Math.round(v/1000)+"k"},grid:{display:false},title:{display:true,text:"Balance remaining",color:"#a78bfa",font:{size:10}}}
+        }
+      }
+    });
+  } else {
+    document.getElementById("a-dch").closest(".chart-card").style.display="none";
+  }
+
+  // Inject affiliate CTAs based on scenario
+
+  btn.disabled=false; btn.textContent="Analyze →";
+  document.getElementById("a-out").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+// ── COPY TO COMPARE ──
+function copyToCompare(){
+  if(!lastAnalysis)return;
+  const {s,majKey,mktKey,yrs,fam,schol,res}=lastAnalysis;
+  switchTab("compare");
+  cSchools.cA=s;
+  document.getElementById("cA-q").value=s["school.name"];
+  document.getElementById("cA-tag").innerHTML=`<div class="school-tag tag-a">${s["school.name"]}<button class="tag-x" onclick="clearSchool('cA')">✕</button></div>`;
+  document.getElementById("cA-major").value=majKey;
+  document.getElementById("cA-mkt").value=mktKey;
+  document.getElementById("cA-yrs").value=yrs;
+  document.getElementById("cA-fam").value=fam;
+  document.getElementById("cA-schol").value=schol;
+  document.getElementById("cA-res").value=res;
+  const srcBand=document.getElementById("a-income-band");
+  const dstBand=document.getElementById("cA-income-band");
+  if(srcBand&&dstBand)dstBand.value=srcBand.value;
+  const fields=["living","loanrate","repay"];
+  fields.forEach(f=>{
+    const src=document.getElementById("a-"+f);
+    const dst=document.getElementById("cA-"+f);
+    if(src&&dst)dst.value=src.value;
+  });
+}
+
+// ── PLAN & SAVE MODEL ──
+
+function fvAnnuity(pmt,r,n){
+  if(r===0)return pmt*n;
+  return pmt*(Math.pow(1+r,n)-1)/r;
+}
+
+function projectedTuitionCost(s,res,incomeBand,yearsUntil,inflation){
+  const own=s["school.ownership"];
+  let currentAnnual;
+  if(res==="net"){
+    const band=incomeBand||"75001-110000";
+    const pubKey="latest.cost.avg_net_price.by_income.public.by_income_level."+band;
+    const privKey="latest.cost.avg_net_price.by_income.private.by_income_level."+band;
+    currentAnnual=s[privKey]||s[pubKey]||s["latest.cost.avg_net_price.private"]||s["latest.cost.avg_net_price.public"]||s["latest.cost.tuition.in_state"]||30000;
+  } else if(res==="in"){
+    currentAnnual=(s["latest.cost.tuition.in_state"]||(own===1?12000:40000))+(s["latest.cost.roomboard.oncampus"]||14000);
+  } else {
+    currentAnnual=(s["latest.cost.tuition.out_of_state"]||s["latest.cost.tuition.in_state"]||(own===1?30000:44000))+(s["latest.cost.roomboard.oncampus"]||14000);
+  }
+  const futureAnnual=currentAnnual*Math.pow(1+inflation,yearsUntil);
+  return{currentAnnual,futureAnnual,futureTotal4yr:futureAnnual*4};
+}
+
+function calcMonthlyNeeded(targetAmount,currentBalance,annualReturn,months){
+  const r=annualReturn/12;
+  const fvExisting=currentBalance*Math.pow(1+r,months);
+  const gap=targetAmount-fvExisting;
+  if(gap<=0)return 0;
+  if(r===0)return gap/months;
+  return gap*r/(Math.pow(1+r,months)-1);
+}
+
+function suggestContribution(){
+  // Calculate needed monthly to cover 4yr cost given current inputs
+  const age=+document.getElementById("p-age").value||5;
+  const enrollAge=+document.getElementById("p-enroll").value||18;
+  const yearsUntil=Math.max(1,enrollAge-age);
+  const months=yearsUntil*12;
+  const balance=+document.getElementById("p-balance").value||0;
+  const balanceTaxable=+document.getElementById("p-balance-taxable").value||0;
+  const annualReturn=(+document.getElementById("p-return").value||7)/100;
+  const annualReturnTaxable=(+document.getElementById("p-return-taxable").value||6)/100;
+  const stateDeduct=+document.getElementById("p-state-deduct").value||0;
+  const inflation=(+document.getElementById("p-inflation").value||4)/100;
+  const res=document.getElementById("p-res").value;
+  const incomeBand=document.getElementById("p-income-band").value;
+
+  if(!pSchool){
+    document.getElementById("p-suggest-result").style.display="block";
+    document.getElementById("p-suggest-result").style.color="var(--amber)";
+    document.getElementById("p-suggest-result").textContent="Search and select a college first.";
+    return;
+  }
+
+  const{currentAnnual,futureTotal4yr}=projectedTuitionCost(pSchool,res,incomeBand,yearsUntil,inflation);
+
+  // Calculate needed across both accounts — split 80/20 529/taxable by default
+  const blendedRate=(annualReturn+annualReturnTaxable)/2;
+  const totalNeeded=calcMonthlyNeeded(futureTotal4yr,balance+balanceTaxable,blendedRate,months);
+
+  // Apply state deduction to 529 portion (80%) — effective contribution is higher
+  // So actual cash needed is lower
+  const split529=0.8, splitTax=0.2;
+  const raw529=(totalNeeded*split529)/(1+stateDeduct);
+  const rawTax=totalNeeded*splitTax;
+  const raw529Rounded=Math.ceil(raw529/10)*10;
+  const rawTaxRounded=Math.ceil(rawTax/10)*10;
+
+  const el=document.getElementById("p-suggest-result");
+
+  if(totalNeeded<=0){
+    el.style.display="block";
+    el.style.color="var(--blue)";
+    el.textContent="Your existing balances already cover the projected cost — no additional contributions needed!";
+    return;
+  }
+
+  // Fill in the fields
+  document.getElementById("p-monthly").value=raw529Rounded;
+  document.getElementById("p-monthly-taxable").value=rawTaxRounded;
+
+  el.style.display="block";
+  el.style.color="var(--blue)";
+  el.innerHTML=`Suggested: <strong>$${raw529Rounded.toLocaleString()}/mo</strong> to 529 + <strong>$${rawTaxRounded.toLocaleString()}/mo</strong> taxable = <strong>$${(raw529Rounded+rawTaxRounded).toLocaleString()}/mo</strong> total to cover the projected ${fmtK(futureTotal4yr)} cost in ${yearsUntil} years. Run the plan to confirm.`;
+}
+
+async function planSave(){
+  if(!pSchool)return;
+  const s=pSchool;
+  const btn=document.getElementById("p-btn");
+  btn.disabled=true; btn.textContent="Projecting...";
+  try{
+
+  const res=document.getElementById("p-res").value;
+  const age=+document.getElementById("p-age").value||5;
+  const enrollAge=+document.getElementById("p-enroll").value||18;
+  const incomeBand=document.getElementById("p-income-band").value;
+  const monthly=+document.getElementById("p-monthly").value||0;
+  const balance=+document.getElementById("p-balance").value||0;
+  const monthlyTaxable=+document.getElementById("p-monthly-taxable").value||0;
+  const balanceTaxable=+document.getElementById("p-balance-taxable").value||0;
+  const annualReturn=(+document.getElementById("p-return").value||7)/100;
+  const annualReturnTaxable=(+document.getElementById("p-return-taxable").value||6)/100;
+  const stateDeduct=+document.getElementById("p-state-deduct").value||0;
+  const inflation=(+document.getElementById("p-inflation").value||4)/100;
+
+  const yearsUntil=Math.max(1,enrollAge-age);
+  const months=yearsUntil*12;
+  const monthlyReturn=annualReturn/12;
+  const monthlyReturnTaxable=annualReturnTaxable/12;
+  const effectiveMonthly=monthly*(1+stateDeduct);
+  const annualTaxBenefit=monthly*12*stateDeduct;
+
+  const{currentAnnual,futureAnnual,futureTotal4yr}=projectedTuitionCost(s,res,incomeBand,yearsUntil,inflation);
+
+  const fv529=fvAnnuity(effectiveMonthly,monthlyReturn,months)+balance*Math.pow(1+monthlyReturn,months);
+  const fvTaxable=fvAnnuity(monthlyTaxable,monthlyReturnTaxable,months)+balanceTaxable*Math.pow(1+monthlyReturnTaxable,months);
+  const projectedBalance=fv529+fvTaxable;
+
+  const gap4yr=Math.max(0,futureTotal4yr-projectedBalance);
+  const surplus4yr=Math.max(0,projectedBalance-futureTotal4yr);
+  const coveragePct=Math.min(100,Math.round(projectedBalance/futureTotal4yr*100));
+
+  const totalMonthly=effectiveMonthly+monthlyTaxable;
+  const monthlyNeeded=calcMonthlyNeeded(futureTotal4yr,balance+balanceTaxable,(annualReturn+annualReturnTaxable)/2,months);
+  const monthlyGap=Math.max(0,monthlyNeeded-totalMonthly);
+
+  const totalContributed529=monthly*months;
+  const totalContributedTaxable=monthlyTaxable*months;
+  const totalContributed=totalContributed529+totalContributedTaxable;
+  const totalGrowth=projectedBalance-totalContributed-balance-balanceTaxable;
+
+  // Year-by-year for chart
+  const yearLabels=[],balance529Arr=[],balanceTaxableArr=[],costArr=[];
+  for(let yr=0;yr<=yearsUntil;yr++){
+    yearLabels.push(yr===0?"Now":"Yr "+yr);
+    const m=yr*12;
+    const b529=fvAnnuity(effectiveMonthly,monthlyReturn,m)+balance*Math.pow(1+monthlyReturn,m);
+    const bTax=fvAnnuity(monthlyTaxable,monthlyReturnTaxable,m)+balanceTaxable*Math.pow(1+monthlyReturnTaxable,m);
+    balance529Arr.push(Math.round(b529));
+    balanceTaxableArr.push(Math.round(b529+bTax));
+    costArr.push(Math.round(currentAnnual*Math.pow(1+inflation,yr)*4));
+  }
+
+  const verdClass=coveragePct>=100?"vgood":coveragePct>=60?"vwarn":"vbad";
+  const verdTitle=coveragePct>=100?"On track to fully cover it":coveragePct>=60?"Partially funded — gap to close":"Significant shortfall projected";
+
+  document.getElementById("p-empty").style.display="none";
+  document.getElementById("p-out").style.display="block";
+
+  document.getElementById("p-out").innerHTML=`
+  <div style="margin-bottom:1rem">
+    <div style="font-family:var(--serif);font-size:1.2rem;color:var(--text);margin-bottom:2px">${s["school.name"]} — ${yearsUntil} years away</div>
+    <div style="font-size:11px;color:var(--text3)">${s["school.city"]}, ${s["school.state"]} · ${ownL(s["school.ownership"])} · ${yearsUntil} years to enrollment</div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="metric-label">Current annual cost</div><div class="metric-val">${fmtK(currentAnnual)}</div><div class="metric-sub">${res==="net"?"Net price after aid":"Tuition + room"}</div></div>
+    <div class="metric"><div class="metric-label">Projected annual cost</div><div class="metric-val a">${fmtK(futureAnnual)}</div><div class="metric-sub">In ${yearsUntil}yr at ${(inflation*100).toFixed(1)}%/yr inflation</div></div>
+    <div class="metric"><div class="metric-label">4-yr projected total</div><div class="metric-val r">${fmtK(futureTotal4yr)}</div><div class="metric-sub">Future dollars</div></div>
+    <div class="metric"><div class="metric-label">Projected 529 balance</div><div class="metric-val ${coveragePct>=100?"g":coveragePct>=60?"a":"r"}">${fmtK(fv529)}</div><div class="metric-sub">At enrollment</div></div>
+    <div class="metric"><div class="metric-label">Combined balance</div><div class="metric-val ${coveragePct>=100?"g":coveragePct>=60?"a":"r"}">${fmtK(projectedBalance)}</div><div class="metric-sub">529 + taxable</div></div>
+    <div class="metric"><div class="metric-label">Coverage</div><div class="metric-val ${coveragePct>=100?"g":coveragePct>=60?"a":"r"}">${coveragePct}%</div><div class="metric-sub">${gap4yr>0?"-"+fmtK(gap4yr)+" gap":"+"+fmtK(surplus4yr)+" surplus"}</div></div>
+  </div>
+  <div class="verdict ${verdClass}">
+    <h3>${verdTitle}</h3>
+    <p>${coveragePct>=100
+      ?`At $${(monthly+monthlyTaxable).toLocaleString()}/mo you'll accumulate ${fmtK(projectedBalance)} by enrollment — ${fmtK(surplus4yr)} more than the projected ${fmtK(futureTotal4yr)} 4-year cost.`
+      :`Your ${fmtK(projectedBalance)} projected balance covers ${coveragePct}% of the estimated ${fmtK(futureTotal4yr)} 4-year cost. To fully cover it you'd need ${fmt(monthlyNeeded)}/mo — ${fmt(monthlyGap)} more than your current ${fmt(totalMonthly)}/mo.`
+    }</p>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">529 &amp; taxable savings vs projected cost</div>
+    <div class="chart-sub">Your savings growth vs what ${s["school.name"]} will cost — future dollars</div>
+    <div class="leg-row">
+      <span class="leg"><span class="leg-sq" style="background:#3fb950"></span>529 balance</span>
+      <span class="leg"><span class="leg-sq" style="background:#58a6ff"></span>529 + taxable</span>
+      <span class="leg"><span class="leg-sq" style="background:#f85149"></span>Projected 4yr cost</span>
+    </div>
+    <div class="chart-wrap" style="height:220px"><canvas id="p-growthChart" role="img" aria-label="Savings vs projected cost"></canvas></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-row"><span class="stat-label">529 monthly contribution</span><span class="stat-val">${fmt(monthly)}/mo + ${fmt(annualTaxBenefit/12)} tax benefit = ${fmt(effectiveMonthly)}/mo effective</span></div>
+    <div class="stat-row"><span class="stat-label">Taxable monthly contribution</span><span class="stat-val">${monthlyTaxable>0?fmt(monthlyTaxable)+"/mo":"$0"}</span></div>
+    <div class="stat-row"><span class="stat-label">State 529 tax benefit</span><span class="stat-val g">${fmt(annualTaxBenefit)}/yr</span></div>
+    <div class="stat-row"><span class="stat-label">Projected 529 balance at enrollment</span><span class="stat-val">${fmtK(fv529)}</span></div>
+    <div class="stat-row"><span class="stat-label">Projected taxable balance at enrollment</span><span class="stat-val">${fmtK(fvTaxable)}</span></div>
+    <div class="stat-row"><span class="stat-label">Total contributed over ${yearsUntil}yr</span><span class="stat-val">${fmtK(totalContributed)}</span></div>
+    <div class="stat-row"><span class="stat-label">Investment growth</span><span class="stat-val g">+${fmtK(Math.max(0,totalGrowth))}</span></div>
+    <div class="stat-row"><span class="stat-label">Monthly needed to fully cover</span><span class="stat-val ${monthlyGap>0?"r":"g"}">${fmt(Math.max(0,monthlyNeeded))}/mo ${monthlyGap>0?"(+"+fmt(monthlyGap)+" more)":"✓ covered"}</span></div>
+    <div class="stat-row"><span class="stat-label">Loan payment on gap (if financed)</span><span class="stat-val ${gap4yr>0?"a":""}">${gap4yr>0?fmt(gap4yr*0.065/12/(1-Math.pow(1+0.065/12,-120)))+"/mo × 10yr":"N/A — fully funded"}</span></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Where your ${fmtK(projectedBalance)} comes from</div>
+    <div class="chart-sub">Breakdown of projected balance at enrollment</div>
+    <div class="chart-wrap" style="height:160px"><canvas id="p-breakdownChart" role="img" aria-label="529 balance breakdown"></canvas></div>
+  </div>
+  <div class="disclaimer">Projections assume constant contribution and return rate. Tuition inflation varies by institution. 529 tax benefits vary by state. All figures in future (nominal) dollars. Not financial advice.</div>`;
+
+  // Charts
+  Object.keys(allCharts).filter(k=>k.startsWith("p-")).forEach(k=>{allCharts[k].destroy();delete allCharts[k];});
+  const light=document.documentElement.getAttribute("data-theme")==="light";
+  const gridColor=light?"rgba(0,0,0,.05)":"rgba(255,255,255,.04)";
+  const tickColor=light?"#80807a":"#8b949e";
+  const ttBg=light?"#fff":"#21262d";
+  const ttBdr=light?"#e0ded8":"#30363d";
+  const ttTitle=light?"#1a1a2e":"#c9d1d9";
+
+  allCharts["p-growth"]=new Chart(document.getElementById("p-growthChart"),{type:"line",data:{labels:yearLabels,datasets:[
+    {label:"529 balance",data:balance529Arr,borderColor:"#3fb950",backgroundColor:"rgba(63,185,80,.08)",fill:true,borderWidth:2,tension:.4,pointRadius:0},
+    {label:"529 + taxable",data:balanceTaxableArr,borderColor:"#58a6ff",backgroundColor:"rgba(88,166,255,.06)",fill:true,borderWidth:2.5,tension:.4,pointRadius:0},
+    {label:"4yr projected cost",data:costArr,borderColor:"#f85149",backgroundColor:"transparent",borderWidth:2,borderDash:[5,3],tension:.4,pointRadius:0},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:ttBg,borderColor:ttBdr,borderWidth:1,titleColor:ttTitle,bodyColor:tickColor,callbacks:{label:cx=>" "+cx.dataset.label+": "+fmtK(cx.raw)}}},scales:{x:{ticks:{color:tickColor,font:{size:10},maxTicksLimit:8},grid:{color:gridColor}},y:{ticks:{color:tickColor,font:{size:10},callback:v=>"$"+Math.round(v/1000)+"k"},grid:{color:gridColor}}}}});
+
+  allCharts["p-breakdown"]=new Chart(document.getElementById("p-breakdownChart"),{type:"doughnut",data:{labels:["529 contributions","529 growth","Taxable contributions","Taxable growth","Existing balances"],datasets:[{data:[totalContributed529,Math.max(0,fv529-totalContributed529-balance),totalContributedTaxable,Math.max(0,fvTaxable-totalContributedTaxable-balanceTaxable),balance+balanceTaxable],backgroundColor:["#3fb950","#a8e6b8","#58a6ff","#b8d8f8","#4f5bd5"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"60%",plugins:{legend:{position:"right",labels:{font:{size:10},color:tickColor,boxWidth:10,padding:8}},tooltip:{callbacks:{label:cx=>" "+cx.label+": "+fmtK(cx.raw)}}}}});
+
+
+  btn.disabled=false; btn.textContent="Project my savings plan →";
+  document.getElementById("p-out").scrollIntoView({behavior:"smooth",block:"start"});
+  }catch(err){
+    console.error("planSave error:",err);
+    btn.disabled=false; btn.textContent="Project my savings plan →";
+    document.getElementById("p-empty").style.display="none";
+    document.getElementById("p-out").style.display="block";
+    document.getElementById("p-out").innerHTML=`<div class="verdict vbad"><h3>Something went wrong</h3><p>${err.message}</p></div>`;
+  }
+}
+
+// ── COPY TO PLAN ──
+function copyToPlan(){
+  if(!lastAnalysis)return;
+  const {s,res,incomeBand}=lastAnalysis;
+  switchTab("plan");
+  // Pre-fill school
+  pSchool=s;
+  document.getElementById("p-q").value=s["school.name"];
+  document.getElementById("p-tag").innerHTML=
+    `<div class="school-tag tag-amber">${s["school.name"]}<button class="tag-x" onclick="clearSchool('p')">✕</button></div>`;
+  document.getElementById("p-btn").disabled=false;
+  // Pre-fill residency and income band
+  document.getElementById("p-res").value=res;
+  const pBand=document.getElementById("p-income-band");
+  if(pBand)pBand.value=incomeBand||"75001-110000";
+}
+
+// ── COMPARE ──
+async function runCompare(){
+  if(!cSchools.cA||!cSchools.cB){alert("Please select a college for both scenarios.");return;}
+  const slots=["cA","cB"];
+  const colors=["#7B61FF","#FF7B4A"];
+  const Rs=slots.map(sl=>{
+    const s=cSchools[sl];
+    const majKey=document.getElementById(sl+"-major").value, maj=MAJORS[majKey];
+    const mktKey=document.getElementById(sl+"-mkt").value, mktMult=MKT[mktKey];
+    const mktName=document.getElementById(sl+"-mkt").options[document.getElementById(sl+"-mkt").selectedIndex].text;
+    const yrs=+document.getElementById(sl+"-yrs").value;
+    const fam=+document.getElementById(sl+"-fam").value||0;
+    const schol=+document.getElementById(sl+"-schol").value||0;
+    const res=document.getElementById(sl+"-res").value;
+    const incomeBand=document.getElementById(sl+"-income-band").value;
+    const living=document.getElementById(sl+"-living")?document.getElementById(sl+"-living").value:"oncampus";
+    const loanRatePct=+(document.getElementById(sl+"-loanrate")?document.getElementById(sl+"-loanrate").value:6.5)||6.5;
+    const repay=document.getElementById(sl+"-repay")?document.getElementById(sl+"-repay").value:"standard";
+    const w0tmp=wealth20(calcCost(s,res,yrs,fam,schol,incomeBand,living,loanRatePct,repay,0),MAJORS[majKey],mktMult);
+    const c=calcCost(s,res,yrs,fam,schol,incomeBand,living,loanRatePct,repay,w0tmp.s0);
+    const w=wealth20(c,maj,mktMult);
+    const dti=w.s0>0?c.borrow/w.s0:0;
+    return{s,c,w,dti,maj,majKey,mktKey,mktMult,mktName};
+  });
+
+  const wLabels=Array.from({length:21},(_,i)=>i===0?"Now":`Yr ${i}`);
+
+  // Render metrics + chart for each scenario column
+  slots.forEach((sl,i)=>{
+    const {s,c,w,dti,maj,mktName}=Rs[i];
+    if(allCharts[sl+"-wch"]){allCharts[sl+"-wch"].destroy();delete allCharts[sl+"-wch"];}
+    document.getElementById(sl+"-out").innerHTML=renderCard(s,c,w,dti,mktName,maj,Rs[i].c.res)+`
+    <div class="chart-card">
+      <div class="chart-title">20-year cumulative wealth</div>
+      <div class="chart-sub">After all costs, loan payments and opportunity cost · nominal dollars</div>
+      <div class="leg-row"><span class="leg"><span class="leg-sq" style="background:${colors[i]}"></span>This scenario</span><span class="leg"><span class="leg-sq" style="background:#8b949e;opacity:.5"></span>No college</span></div>
+      <div class="chart-wrap" style="height:180px"><canvas id="${sl}-wch" role="img" aria-label="wealth chart scenario ${i+1}"></canvas></div>
+    </div>
+    <div class="disclaimer">Data: U.S. Dept. of Education College Scorecard · BLS Occupational Outlook Handbook. All projections in nominal dollars — not inflation-adjusted. For planning purposes only.</div>`;
+    allCharts[sl+"-wch"]=new Chart(document.getElementById(sl+"-wch"),{type:"line",data:{labels:wLabels,datasets:[{label:"College",data:w.ca,borderColor:colors[i],backgroundColor:colors[i]+"22",fill:true,borderWidth:2.5,tension:.4,pointRadius:0},{label:"No college",data:w.na,borderColor:"#8b949e",backgroundColor:"transparent",borderWidth:1.5,borderDash:[5,3],tension:.4,pointRadius:0}]},options:chartCfg()});
+  });
+
+  // Build summary comparison strip
+  const rA=Rs[0], rB=Rs[1];
+  const betterCost=rA.c.cost<=rB.c.cost?"A":"B";
+  const betterDebt=rA.c.borrow<=rB.c.borrow?"A":"B";
+  const betterMthly=rA.c.mthly<=rB.c.mthly?"A":"B";
+  const betterBE=(rA.w.be||99)<=(rB.w.be||99)?"A":"B";
+  const betterGap=rA.w.gap>=rB.w.gap?"A":"B";
+  const costDiff=Math.abs(rA.c.cost-rB.c.cost);
+  const debtDiff=Math.abs(rA.c.borrow-rB.c.borrow);
+  const mthlyDiff=Math.abs(rA.c.mthly-rB.c.mthly);
+  const gapDiff=Math.abs(rA.w.gap-rB.w.gap);
+  function winBadge(w){return`<span style="font-size:10px;font-weight:600;padding:1px 7px;border-radius:99px;background:${w==="A"?"rgba(123,97,255,.15)":"rgba(255,123,74,.15)"};color:${w==="A"?"#7B61FF":"#FF7B4A"};font-family:var(--mono)">Scenario ${w}</span>`;}
+  document.getElementById("c-summary-strip").innerHTML=`
+    <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);font-family:var(--mono);margin-bottom:.75rem">Side-by-side summary</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
+      <div style="background:var(--bg3);border-radius:var(--r);padding:.875rem 1rem">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;font-family:var(--mono)">Total cost</div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;margin-bottom:4px"><span style="color:var(--ca)">A: ${fmtK(rA.c.cost)}</span><span style="color:var(--cb)">B: ${fmtK(rB.c.cost)}</span></div>
+        <div style="font-size:11px;color:var(--text3)">${winBadge(betterCost)} is ${fmt(costDiff)} cheaper overall</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:var(--r);padding:.875rem 1rem">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;font-family:var(--mono)">Total debt</div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;margin-bottom:4px"><span style="color:var(--ca)">A: ${fmt(rA.c.borrow)}</span><span style="color:var(--cb)">B: ${fmt(rB.c.borrow)}</span></div>
+        <div style="font-size:11px;color:var(--text3)">${winBadge(betterDebt)} borrows ${fmt(debtDiff)} less</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:var(--r);padding:.875rem 1rem">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;font-family:var(--mono)">Monthly payment</div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;margin-bottom:4px"><span style="color:var(--ca)">A: ${fmt(rA.c.mthly)}/mo</span><span style="color:var(--cb)">B: ${fmt(rB.c.mthly)}/mo</span></div>
+        <div style="font-size:11px;color:var(--text3)">${winBadge(betterMthly)} pays ${fmt(mthlyDiff)}/mo less × 10yr</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:var(--r);padding:.875rem 1rem">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;font-family:var(--mono)">Break-even vs no college</div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;margin-bottom:4px"><span style="color:var(--ca)">A: ${rA.w.be?rA.w.be+"yr":"20yr+"}</span><span style="color:var(--cb)">B: ${rB.w.be?rB.w.be+"yr":"20yr+"}</span></div>
+        <div style="font-size:11px;color:var(--text3)">${winBadge(betterBE)} breaks even sooner</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:var(--r);padding:.875rem 1rem">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;font-family:var(--mono)">20-year wealth gap</div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;margin-bottom:4px"><span style="color:var(--ca)">A: ${rA.w.gap>=0?"+":""}${fmtK(rA.w.gap)}</span><span style="color:var(--cb)">B: ${rB.w.gap>=0?"+":""}${fmtK(rB.w.gap)}</span></div>
+        <div style="font-size:11px;color:var(--text3)">${winBadge(betterGap)} leads by ${fmtK(gapDiff)} at yr 20</div>
+      </div>
+    </div>`;
+
+  document.getElementById("c-summary-section").style.display="block";
+  document.getElementById("c-summary-section").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+// ── AI (Gemini) ──
+
+// ── TABS ──
+function switchTab(t){
+  document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.getElementById("tab-"+t).classList.add("active");
+  document.getElementById("view-"+t).classList.add("active");
+}
+
+// ── THEME ──
+function toggleTheme(){
+  const html=document.documentElement;
+  const isLight=html.getAttribute('data-theme')==='light';
+  const next=isLight?'dark':'light';
+  html.setAttribute('data-theme',next);
+  document.getElementById('themeBtn').textContent=next==='light'?'☾':'☀';
+  localStorage.setItem('diplomath-theme',next);
+}
+(()=>{
+  const saved=localStorage.getItem('diplomath-theme');
+  const theme=saved||'dark';
+  document.documentElement.setAttribute('data-theme',theme);
+  window.addEventListener('DOMContentLoaded',()=>{
+    const btn=document.getElementById('themeBtn');
+    if(btn)btn.textContent=theme==='dark'?'☀':'☾';
+  });
+})();
+
+// ── STATUS ──
+(async()=>{
+  const b=document.getElementById("apiBadge");
+  try{
+    const r=await fetch("/health",{signal:AbortSignal.timeout(2000)});
+    const d=await r.json();
+    b.style.background="rgba(63,185,80,.15)"; b.style.color="var(--green)";
+    b.textContent="✓ Ready";
+  }catch(e){
+    b.style.background="rgba(248,81,73,.12)"; b.style.color="var(--red)";
+    b.textContent="✗ Run: node server.js";
+  }
+})();
+</script>
+</body>
+</html>
